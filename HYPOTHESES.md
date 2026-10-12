@@ -13,6 +13,16 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   YES para precios ≤0.10 (medidos a horizonte fijo antes del cierre) es inferior al
   precio medio, y para ≥0.90 es superior; la diferencia supera el coste de ejecución
   (spread+comisión) con IC95% por clusters de evento > 0.
+- Protocolo fijado ANTES de ver datos (2026-10-12):
+  - Universo: todos los mercados cerrados con 2 resultados y tokens CLOB, incluidos
+    baja liquidez y anulados (anulado = pago 0.5, tratamiento pesimista).
+  - Observación: precio CLOB (prices-history) último punto ≤ t, con t = endDate − h,
+    h ∈ {24h (principal), 7d}. Solo mercados aún abiertos en t (conocido en t).
+  - Estrategia: p ≤ 0.10 → comprar NO; p ≥ 0.90 → comprar YES. Coste: comisión
+    vigente del mercado + medio spread pesimista (no hay historial de libro).
+  - Split: holdout = closedTime ≥ 2026-04-12 (últimos 6 meses), intocable hasta G3.
+  - Clusters = event id. Métricas: gap de calibración por bin, retorno neto por
+    operación y anualizado por días hasta cierre.
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ### H002 — Suma de precios en mercados negRisk ≠ 1
