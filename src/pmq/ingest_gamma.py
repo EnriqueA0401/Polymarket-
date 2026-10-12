@@ -1,10 +1,14 @@
-"""Descarga el universo completo de mercados cerrados de Gamma (keyset pagination).
+"""Descarga el universo completo de mercados cerrados de Gamma.
 
-Uso: python -m pmq.ingest_gamma   (desde src/, o con PYTHONPATH=src)
-Salida: data/gamma/markets_closed_XXXX.jsonl.gz (trozos) + data/gamma/cursor.txt (reanudable).
-Se guarda el registro crudo sin imágenes ni descripciones largas truncadas.
+Paginación keyset en paralelo por ventanas mensuales de endDate (2019-01 … 2031-01) más
+una ventana abierta [2031, ∞). Los mercados sin endDate no son filtrables por esta vía:
+se cuentan aparte en la verificación (ver data_manifest.json).
+Uso: PYTHONPATH=src python -m pmq.ingest_gamma
+Salida: data/gamma/win_YYYY-MM.jsonl.gz (una por ventana; reanudable por ventana).
 """
 import gzip, json, os, sys, time
+from concurrent.futures import ThreadPoolExecutor
+import pandas as pd
 import requests
 
 BASE = "https://gamma-api.polymarket.com/markets/keyset"
@@ -20,45 +24,55 @@ def slim(m):
     return m
 
 
-def get(params, tries=6):
+def get(params, tries=7):
     for i in range(tries):
         try:
             r = requests.get(BASE, params=params, timeout=60)
             if r.status_code == 200:
                 return r.json()
-            print("http", r.status_code, r.text[:200], file=sys.stderr)
+            print("http", r.status_code, r.text[:200], file=sys.stderr, flush=True)
         except requests.RequestException as e:
-            print("err", e, file=sys.stderr)
+            print("err", e, file=sys.stderr, flush=True)
         time.sleep(2 ** i)
-    raise RuntimeError("fallo persistente")
+    raise RuntimeError(f"fallo persistente {params}")
 
 
-def main():
-    os.makedirs(OUT, exist_ok=True)
-    cpath = os.path.join(OUT, "cursor.txt")
-    cursor = open(cpath).read().strip() if os.path.exists(cpath) else None
-    if cursor == "DONE":
-        print("ya completo"); return
-    chunk = len([f for f in os.listdir(OUT) if f.startswith("markets_closed_")])
-    buf, n = [], 0
+def window(a, b, name):
+    path = os.path.join(OUT, f"win_{name}.jsonl.gz")
+    if os.path.exists(path):
+        return 0
+    rows, cursor = [], None
     while True:
-        p = {"closed": "true", "limit": 1000}
+        p = {"closed": "true", "limit": 100, "end_date_min": a}
+        if b:
+            p["end_date_max"] = b
         if cursor:
             p["after_cursor"] = cursor
         d = get(p)
         ms = d.get("markets") or []
-        buf.extend(slim(m) for m in ms)
-        n += len(ms)
+        rows.extend(slim(m) for m in ms)
         cursor = d.get("next_cursor")
-        if len(buf) >= 20000 or not cursor or not ms:
-            with gzip.open(os.path.join(OUT, f"markets_closed_{chunk:04d}.jsonl.gz"), "wt") as f:
-                for m in buf:
-                    f.write(json.dumps(m) + "\n")
-            chunk += 1; buf = []
-            open(cpath, "w").write(cursor or "DONE")
-            print(f"{n} mercados, último id {ms[-1]['id'] if ms else '-'}", flush=True)
         if not cursor or not ms:
             break
+    tmp = path + ".tmp"
+    with gzip.open(tmp, "wt") as f:
+        for m in rows:
+            f.write(json.dumps(m) + "\n")
+    os.replace(tmp, path)
+    print(f"{name} {len(rows)}", flush=True)
+    return len(rows)
+
+
+def main():
+    os.makedirs(OUT, exist_ok=True)
+    ms = pd.date_range("2019-01-01", "2031-01-01", freq="MS", tz="UTC")
+    jobs = [(ms[i].strftime("%Y-%m-%dT%H:%M:%SZ"), ms[i + 1].strftime("%Y-%m-%dT%H:%M:%SZ"),
+             ms[i].strftime("%Y-%m")) for i in range(len(ms) - 1)]
+    jobs.append(("2031-01-01T00:00:00Z", None, "2031plus"))
+    jobs.reverse()  # los meses recientes son los más grandes: empezar por ellos
+    with ThreadPoolExecutor(8) as ex:
+        total = sum(ex.map(lambda j: window(*j), jobs))
+    print(f"FIN {total}", flush=True)
 
 
 if __name__ == "__main__":

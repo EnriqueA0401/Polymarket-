@@ -47,7 +47,7 @@ def parse(m):
 
 def build():
     rows = []
-    for f in sorted(glob.glob(os.path.join(DATA, "gamma", "markets_closed_*.jsonl.gz"))):
+    for f in sorted(glob.glob(os.path.join(DATA, "gamma", "win_*.jsonl.gz"))):
         with gzip.open(f, "rt") as fh:
             for line in fh:
                 r = parse(json.loads(line))
