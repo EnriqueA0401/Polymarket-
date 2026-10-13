@@ -45,7 +45,7 @@ def observations(universe, histories, h):
 
 def fee_rate(schedule_json):
     import json
-    if schedule_json:
+    if isinstance(schedule_json, str) and schedule_json:
         try:
             return float(json.loads(schedule_json)["rate"])
         except (KeyError, ValueError, TypeError):

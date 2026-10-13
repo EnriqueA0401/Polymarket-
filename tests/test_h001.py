@@ -71,3 +71,9 @@ def test_bootstrap_cubre_media():
     df = pd.DataFrame({"ret": np.r_[np.ones(50), -np.ones(50)] * 0.1, "event_id": np.arange(100)})
     lo, hi = h001.cluster_bootstrap(df)
     assert lo < 0 < hi
+
+
+def test_fee_rate_con_nulos():
+    assert h001.fee_rate(pd.NA) == h001.DEFAULT_FEE_RATE
+    assert h001.fee_rate(None) == h001.DEFAULT_FEE_RATE
+    assert h001.fee_rate('{"rate": 0.04}') == 0.04
