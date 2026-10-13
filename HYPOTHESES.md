@@ -8,7 +8,22 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Fuente: inconsistencias internas.
 - Racional: en eventos multi-resultado la suma de asks YES < 1 o de bids > 1 permite
   arbitraje; pierde el LP descuidado o el taker impaciente.
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-13, antes de ver datos):
+  - Universo: eventos abiertos con negRisk=true (resultados mutuamente excluyentes),
+    todos los mercados del evento aceptando órdenes. Sin historial de libro → medición
+    forward con snapshots periódicos de libros CLOB (G1 = calidad del snapshot).
+  - Arbitraje A (largo YES): comprar 1 acción YES de cada resultado barriendo asks;
+    coste C_A = Σ precio medio + comisiones taker. Pago = 1 si exactamente uno resuelve YES.
+    Si el evento no es exhaustivo (sin "Other"/negRiskAugmented, o placeholders) el pago
+    puede ser 0 → se marca y se excluye del arbitraje "seguro".
+  - Arbitraje B (largo NO): comprar 1 NO de cada uno de los n resultados; pago n−1.
+  - Tamaño: 50 USD por arbitraje (escala del capital < 1.000 USD).
+  - Predicción falsable: oportunidades con beneficio neto ≥ 0.5% y rendimiento anualizado
+    (por días hasta endDate) ≥ 20% aparecen en ≥ 5 eventos distintos por semana.
+    Si no, se rechaza. Si aparecen, G6/G7 deciden (latencia, riesgo de resolución).
+  - Quién pierde: takers que compran un resultado sin mirar el resto; LPs con cotizaciones
+    obsoletas tras noticias.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H003 — Sobreprecio de "Yes"
 - Fuente: sesgos de calibración.
