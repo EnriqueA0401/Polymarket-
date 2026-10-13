@@ -32,7 +32,7 @@ def parse(m):
         y = 0.5  # anulado / no resuelto limpio → pago 0.5 (pesimista: se registra aparte)
     ev = (m.get("events") or [{}])[0]
     return {
-        "id": int(m["id"]), "question": m.get("question"), "outcome0": outs[0],
+        "id": int(m["id"]), "condition_id": m.get("conditionId"), "question": m.get("question"), "outcome0": outs[0],
         "token_yes": toks[0], "token_no": toks[1], "y": y,
         "clean": y != 0.5, "start": _ts(m.get("startDate") or m.get("createdAt")),
         "end": _ts(m.get("endDate")), "closed_time": _ts(m.get("closedTime")),
