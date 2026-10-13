@@ -25,7 +25,7 @@ def slim(m):
     return m
 
 
-def get(params, tries=7):
+def get(params, tries=9):
     for i in range(tries):
         try:
             r = requests.get(BASE, params=params, timeout=60)
@@ -34,7 +34,7 @@ def get(params, tries=7):
             print("http", r.status_code, r.text[:200], file=sys.stderr, flush=True)
         except requests.RequestException as e:
             print("err", e, file=sys.stderr, flush=True)
-        time.sleep(2 ** i)
+        time.sleep(min(2 ** i, 120))
     raise RuntimeError(f"fallo persistente {params}")
 
 
@@ -72,9 +72,17 @@ def main():
              ms[i].strftime("%Y-%m-%d")) for i in range(len(ms) - 1)]
     jobs.append(("2031-01-01T00:00:00Z", None, "2031plus"))
     jobs.reverse()  # los meses recientes son los más grandes: empezar por ellos
-    with ThreadPoolExecutor(8) as ex:
-        total = sum(ex.map(lambda j: window(*j), jobs))
-    print(f"FIN {total}", flush=True)
+    def safe(j):
+        try:
+            return window(*j), 0
+        except RuntimeError as e:  # la ventana queda sin archivo y se reintenta en la próxima ejecución
+            print(f"FALLO {j[2]} {str(e)[:80]}", flush=True)
+            return 0, 1
+    with ThreadPoolExecutor(4) as ex:  # 8 hilos provocaban 403 de Cloudflare
+        res = list(ex.map(safe, jobs))
+    fails = sum(f for _, f in res)
+    print(f"FIN {sum(n for n, _ in res)} fallos={fails}", flush=True)
+    sys.exit(1 if fails else 0)
 
 
 if __name__ == "__main__":
