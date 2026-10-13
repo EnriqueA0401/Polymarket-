@@ -21,6 +21,10 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Estrategia: p ≤ 0.10 → comprar NO; p ≥ 0.90 → comprar YES. Coste: comisión
     vigente del mercado + medio spread pesimista (no hay historial de libro).
   - Split: holdout = closedTime ≥ 2026-04-12 (últimos 6 meses), intocable hasta G3.
+  - Muestreo (fijado 2026-10-13, antes de ver precios): el universo elegible tiene
+    millones de mercados; se descargan precios de una muestra aleatoria por EVENTO
+    (sha256(event_id) mod 1000 < K), K elegido solo por presupuesto (~100k mercados),
+    sin mirar resultados. Eventos enteros entran o salen juntos.
   - Clusters = event id. Métricas: gap de calibración por bin, retorno neto por
     operación y anualizado por días hasta cierre.
 - Estado: activa | Gate: G0 | Variantes: 0
