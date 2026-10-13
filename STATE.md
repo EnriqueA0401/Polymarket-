@@ -1,18 +1,17 @@
 # STATE
 
 ## Qué se está haciendo
-- Ciclo 1. H001 (favorito-longshot) en G1 (construcción de datos).
+- H001 CERRADA (rechazada G2: borde bruto ≈1 c < coste real ≈2 c). Ver findings/.
+- Siguiente hipótesis por prioridad: H002 (suma negRisk ≠ 1) — barata con libros vivos.
 
 ## Hipótesis activa
-- H001 — G0 fijado en HYPOTHESES.md. Código y tests (6) en src/pmq/h001.py, tests/.
+- H002 — pendiente de escribir protocolo G0.
 
 ## Siguiente paso exacto
-1. Universo listo (4.1M binarios, reports/h001_g1_universe.md, hashes en data_manifest.json).
-2. Precios muestra H001 (107k mercados): `experiments/run_prices.sh` (reanudable,
-   escribe TODO_OK en data/fetch_prices.log). En curso 2026-10-13 18:50 UTC, ~1h.
-3. Al terminar: `python experiments/h001_g2.py` → reports/h001_g2.md (solo entrenamiento).
-   Sumar 2 al contador global (h=24h y h=7d).
-4. Revisar riesgo G1: endDate editado ex post (posible lookahead en t=end−h).
+1. Escribir G0 de H002 en HYPOTHESES.md (antes de ver datos): en eventos negRisk abiertos,
+   suma de best asks YES < 1 − costes (comprar todos) o suma de best bids > 1 (vender/NO).
+   Necesita libros vivos simultáneos; registrar snapshots periódicos (no hay historial).
+2. Script experiments/h002_snapshot.py: snapshot de todos los eventos negRisk abiertos.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
@@ -23,4 +22,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 0
+- 3 (H001: 3)
