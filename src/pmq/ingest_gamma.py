@@ -32,16 +32,15 @@ def get(params, tries=9):
             if r.status_code == 200:
                 return r.json()
             print("http", r.status_code, r.text[:200], file=sys.stderr, flush=True)
+            if r.status_code == 403 and i >= 2:
+                break  # 403 repetido = bloqueo determinista del WAF; no insistir
         except requests.RequestException as e:
             print("err", e, file=sys.stderr, flush=True)
         time.sleep(min(2 ** i, 120))
     raise RuntimeError(f"fallo persistente {params}")
 
 
-def window(a, b, name):
-    path = os.path.join(OUT, f"win_{name}.jsonl.gz")
-    if os.path.exists(path):
-        return 0
+def fetch_range(a, b):
     rows, cursor = [], None
     while True:
         p = {"closed": "true", "limit": 100, "end_date_min": a}
@@ -54,7 +53,28 @@ def window(a, b, name):
         rows.extend(slim(m) for m in ms)
         cursor = d.get("next_cursor")
         if not cursor or not ms:
-            break
+            return rows
+
+
+def fetch_split(a, b, depth=0):
+    """Cloudflare bloquea (403) algunos cursores concretos de forma determinista.
+    Si una ventana falla, se parte en dos mitades por tiempo y se reintenta."""
+    try:
+        return fetch_range(a, b)
+    except RuntimeError:
+        if b is None or depth >= 8:
+            raise
+        ta, tb = pd.Timestamp(a), pd.Timestamp(b)
+        mid = (ta + (tb - ta) / 2).strftime("%Y-%m-%dT%H:%M:%SZ")
+        print(f"partiendo {a}..{b}", flush=True)
+        return fetch_split(a, mid, depth + 1) + fetch_split(mid, b, depth + 1)
+
+
+def window(a, b, name):
+    path = os.path.join(OUT, f"win_{name}.jsonl.gz")
+    if os.path.exists(path):
+        return 0
+    rows = list({m["id"]: m for m in fetch_split(a, b)}.values())  # bordes inclusivos → deduplicar
     tmp = path + ".tmp"
     with gzip.open(tmp, "wt") as f:
         for m in rows:
