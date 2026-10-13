@@ -1,24 +1,21 @@
 # STATE
 
 ## Qué se está haciendo
-- H001 CERRADA (rechazada G2). H002 activa: medición forward de arbitraje negRisk.
+- H001 y H003 CERRADAS (rechazadas). H002 activa: medición forward negRisk (hasta ~2026-10-20).
 
 ## Hipótesis activa
-- H002 — G0 fijado. Snapshots cada 30 min desde 2026-10-13 ~20:00 UTC con
-  `experiments/run_h002.sh` → data/h002/opps.csv (+ crudos de eventos con ret>0).
-  Snapshot piloto (opps_v0.csv, 9.6k eventos): 0 arbitrajes seguros A o B.
+- H002 — snapshots cada ~38 min con `experiments/run_h002.sh` → data/h002/opps.csv.
+- Segunda hipótesis: elegir siguiente de la cola (H004 deriva cerca de resolución o H006
+  maker en extremos). Usar SOLO precios ejecutables (trades reales/libros), ver costs.md.
 
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
-   `nohup experiments/run_h002.sh &` (el contenedor se reinicia y mata procesos; hubo hueco
-   21:08–23:05 UTC del 13/10).
-2. Tras 7 días de snapshots (≈2026-10-20): evaluar predicción G0 (≥5 eventos/semana con
-   neto ≥0.5% y anualizado ≥20%, solo safe_a o B). Confirmar cada caso con los libros crudos.
-3. H003 (G2 en duda): `python experiments/h003_exec.py` (caché en data/trades_h003,
-   reanudable) → reports/h003_exec.md. En curso desde 2026-10-13 23:05 UTC. Validar ejecutabilidad con trades reales de Data API: para cada
-   operación de entrenamiento, ¿hubo compras de NO en [t−24h, t] y a qué precio? Recalcular
-   el retorno con el precio de trade real (pesimista: peor precio de compra de NO en la
-   ventana). Si el borde desaparece → rechazar por artefacto de liquidez.
+   `nohup experiments/run_h002.sh &` (reinicios del contenedor lo matan).
+2. Escribir G0 de H006 (maker en extremos): con trades reales (Data API) estimar si un
+   maker que cotiza el lado caro (NO a ≤0.10 de YES) obtiene fills y PnL positivo neto de
+   selección adversa. Definir regla de fill pesimista (solo si hubo trade taker que cruza
+   nuestro precio, y a nuestro precio) ANTES de mirar resultados.
+3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
@@ -29,4 +26,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 5 (H001: 3; H002: 0; H003: 2)
+- 6 (H001: 3; H002: 0; H003: 3)

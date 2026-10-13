@@ -25,28 +25,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     obsoletas tras noticias.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H003 — Sobreprecio de "Yes"
-- Fuente: sesgos de calibración.
-- Racional: sesgo de afirmación; el minorista compra la opción "Yes". Pierde quien
-  compra YES por defecto.
-- Protocolo G0 (fijado 2026-10-13). CONTAMINACIÓN DECLARADA: al revisar H001 vi la
-  calibración agregada en entrenamiento (bins 0.4–0.6: precio > frecuencia en 3–10 pts),
-  sin filtrar por tipo de resultado. Por eso el veredicto depende del holdout (G3).
-  - Universo: muestra de H001 (misma regla), mercados con resultados exactamente
-    ["Yes","No"]. Control: mercados con otros nombres (equipos, Over/Under): si el primer
-    resultado está igual de sobrevalorado, no es sesgo de "Yes" sino artefacto.
-  - Filtro de negociación (anti-artefacto 0.5 inicial): ≥ 2 precios distintos en las 24h
-    previas a t. Fijado ahora, antes de ver el resultado filtrado.
-  - Señal: 0.20 ≤ p ≤ 0.80 en t = end − 24h → comprar NO. Coste 0.02/acción + comisión.
-  - Predicción falsable: en Yes/No, frecuencia de YES < precio medio − 0.03 y retorno neto
-    medio > 0 con IC95% cluster > 0; en el control, diferencia significativamente menor.
-  - Variantes previstas: h=24h (principal), h=7d.
-- G2 (reports/h003_g2.md): Yes/No 24h ret +2.2% (IC −0.0%…4.4%); 7d +8.7% (IC 6.3…11.2%);
-  control 7d +3.7%. PERO coste vivo en zona 0.2–0.8 (reports/h003_live_costs.md): spread
-  mediano 0.77, coste mediano 0.39/acción → precios históricos probablemente no ejecutables.
-  Pendiente: verificar con trades reales (Data API) antes de seguir.
-- Estado: activa | Gate: G2 (en duda por ejecutabilidad) | Variantes: 2
-
 ### H004 — Deriva cerca de la resolución (decaimiento temporal)
 - Fuente: dinámica temporal.
 - Racional: mercados casi decididos cotizan con descuento por coste de capital y
@@ -99,3 +77,26 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: borde bruto ≈1 c/acción < coste real ≈2 c
   (findings/H001_favorito_longshot.md) | Variantes: 3
 
+### H003 — Sobreprecio de "Yes"
+- Fuente: sesgos de calibración.
+- Racional: sesgo de afirmación; el minorista compra la opción "Yes". Pierde quien
+  compra YES por defecto.
+- Protocolo G0 (fijado 2026-10-13). CONTAMINACIÓN DECLARADA: al revisar H001 vi la
+  calibración agregada en entrenamiento (bins 0.4–0.6: precio > frecuencia en 3–10 pts),
+  sin filtrar por tipo de resultado. Por eso el veredicto depende del holdout (G3).
+  - Universo: muestra de H001 (misma regla), mercados con resultados exactamente
+    ["Yes","No"]. Control: mercados con otros nombres (equipos, Over/Under): si el primer
+    resultado está igual de sobrevalorado, no es sesgo de "Yes" sino artefacto.
+  - Filtro de negociación (anti-artefacto 0.5 inicial): ≥ 2 precios distintos en las 24h
+    previas a t. Fijado ahora, antes de ver el resultado filtrado.
+  - Señal: 0.20 ≤ p ≤ 0.80 en t = end − 24h → comprar NO. Coste 0.02/acción + comisión.
+  - Predicción falsable: en Yes/No, frecuencia de YES < precio medio − 0.03 y retorno neto
+    medio > 0 con IC95% cluster > 0; en el control, diferencia significativamente menor.
+  - Variantes previstas: h=24h (principal), h=7d.
+- G2 (reports/h003_g2.md): Yes/No 24h ret +2.2% (IC −0.0%…4.4%); 7d +8.7% (IC 6.3…11.2%);
+  control 7d +3.7%. PERO coste vivo en zona 0.2–0.8 (reports/h003_live_costs.md): spread
+  mediano 0.77, coste mediano 0.39/acción → precios históricos probablemente no ejecutables.
+  Pendiente: verificar con trades reales (Data API) antes de seguir.
+- Ejecutabilidad (reports/h003_exec.md): con peor precio real de compra de NO, 24h −11.0%,
+  7d −5.9%. Borde = artefacto de precios no ejecutables.
+- Estado: RECHAZADA | Gate: falla G1/G2 (precios no ejecutables) | Motivo: findings/H003_sobreprecio_yes.md | Variantes: 3

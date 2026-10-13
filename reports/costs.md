@@ -13,3 +13,6 @@
 - Gas/deposito: Polygon, < 0.01 USD por operación; se ignora frente a lo anterior salvo
   en tamaños < 5 USD.
 - Limitación: los precios históricos pueden no ser ejecutables; se validará en G7 con libro real.
+
+- LECCIÓN H003 (2026-10-14): prices-history no es ejecutable en mercados poco líquidos
+  (zona media: precio real de NO ≈ 0.09 peor que 1−p). Usar trades reales o libros vivos.
