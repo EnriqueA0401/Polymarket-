@@ -41,7 +41,11 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción falsable: en Yes/No, frecuencia de YES < precio medio − 0.03 y retorno neto
     medio > 0 con IC95% cluster > 0; en el control, diferencia significativamente menor.
   - Variantes previstas: h=24h (principal), h=7d.
-- Estado: activa | Gate: G0 | Variantes: 0
+- G2 (reports/h003_g2.md): Yes/No 24h ret +2.2% (IC −0.0%…4.4%); 7d +8.7% (IC 6.3…11.2%);
+  control 7d +3.7%. PERO coste vivo en zona 0.2–0.8 (reports/h003_live_costs.md): spread
+  mediano 0.77, coste mediano 0.39/acción → precios históricos probablemente no ejecutables.
+  Pendiente: verificar con trades reales (Data API) antes de seguir.
+- Estado: activa | Gate: G2 (en duda por ejecutabilidad) | Variantes: 2
 
 ### H004 — Deriva cerca de la resolución (decaimiento temporal)
 - Fuente: dinámica temporal.

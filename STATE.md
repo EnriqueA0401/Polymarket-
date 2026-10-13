@@ -13,9 +13,10 @@
    (el contenedor se reinicia y mata procesos).
 2. Tras 7 días de snapshots (≈2026-10-20): evaluar predicción G0 (≥5 eventos/semana con
    neto ≥0.5% y anualizado ≥20%, solo safe_a o B). Confirmar cada caso con los libros crudos.
-3. Mientras: escribir G0 de H003 (sobreprecio de Yes). OJO: ya vi la calibración de H001
-   en entrenamiento (bins 0.4–0.6 con precio > frecuencia) → declararlo en G0 y confiar
-   en el holdout.
+3. H003 (G2 en duda): validar ejecutabilidad con trades reales de Data API: para cada
+   operación de entrenamiento, ¿hubo compras de NO en [t−24h, t] y a qué precio? Recalcular
+   el retorno con el precio de trade real (pesimista: peor precio de compra de NO en la
+   ventana). Si el borde desaparece → rechazar por artefacto de liquidez.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
@@ -26,4 +27,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 3 (H001: 3; H002: 0)
+- 5 (H001: 3; H002: 0; H003: 2)
