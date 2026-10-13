@@ -28,9 +28,12 @@ HOLDOUT_START = pd.Timestamp("2026-04-12", tz="UTC")
 K_TRAIN, K_HOLDOUT = 150, 20  # por mil eventos; fijado por presupuesto (~110k mercados), sin ver precios
 
 
+def ev_hash(event_id):
+    return int(hashlib.sha256(str(event_id).encode()).hexdigest(), 16) % 1000
+
+
 def in_sample(event_id, k):
-    h = int(hashlib.sha256(str(event_id).encode()).hexdigest(), 16) % 1000
-    return h < k
+    return ev_hash(event_id) < k
 
 
 def sample(t):
@@ -59,12 +62,19 @@ def fetch(row):
     return {"id": int(row.id), "history": None, "err": "fallo persistente"}
 
 
-def main():
+def sample_range(t, lo, hi):
+    """Solo entrenamiento, eventos con hash en [lo, hi). Para réplicas disjuntas."""
+    t = t[t.closed_time < HOLDOUT_START]
+    return t[[lo <= ev_hash(e) < hi for e in t.event_id]]
+
+
+def main(prefix="h001", rng=None):
     os.makedirs(OUT, exist_ok=True)
-    u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"))
-    t = sample(targets(u))
+    u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"),
+                        columns=["id", "token_yes", "event_id", "start", "end", "closed_time", "enable_ob"])
+    t = sample(targets(u)) if rng is None else sample_range(targets(u), *rng)
     done = set()
-    for f in glob.glob(os.path.join(OUT, "h001_*.jsonl.gz")):
+    for f in glob.glob(os.path.join(OUT, f"{prefix}_*.jsonl.gz")):
         with gzip.open(f, "rt") as fh:
             for l in fh:
                 r = json.loads(l)
@@ -72,13 +82,13 @@ def main():
                     done.add(r["id"])
     t = t[~t.id.isin(done)]
     print(f"objetivo {len(t)} pendientes (ya {len(done)})", flush=True)
-    chunk = len(glob.glob(os.path.join(OUT, "h001_*.jsonl.gz")))
+    chunk = len(glob.glob(os.path.join(OUT, f"{prefix}_*.jsonl.gz")))
     rows = list(t.itertuples())
     fails = 0
     with ThreadPoolExecutor(8) as ex:
         for i in range(0, len(rows), 5000):
             res = list(ex.map(fetch, rows[i:i + 5000]))
-            with gzip.open(os.path.join(OUT, f"h001_{chunk:04d}.jsonl.gz"), "wt") as f:
+            with gzip.open(os.path.join(OUT, f"{prefix}_{chunk:04d}.jsonl.gz"), "wt") as f:
                 for r in res:
                     f.write(json.dumps(r) + "\n")
             chunk += 1
@@ -89,4 +99,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # python -m pmq.fetch_prices [prefijo lo hi]   p.ej. h006r 150 450
+    if len(sys.argv) == 4:
+        main(sys.argv[1], (int(sys.argv[2]), int(sys.argv[3])))
+    else:
+        main()
