@@ -29,7 +29,19 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Fuente: sesgos de calibración.
 - Racional: sesgo de afirmación; el minorista compra la opción "Yes". Pierde quien
   compra YES por defecto.
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-13). CONTAMINACIÓN DECLARADA: al revisar H001 vi la
+  calibración agregada en entrenamiento (bins 0.4–0.6: precio > frecuencia en 3–10 pts),
+  sin filtrar por tipo de resultado. Por eso el veredicto depende del holdout (G3).
+  - Universo: muestra de H001 (misma regla), mercados con resultados exactamente
+    ["Yes","No"]. Control: mercados con otros nombres (equipos, Over/Under): si el primer
+    resultado está igual de sobrevalorado, no es sesgo de "Yes" sino artefacto.
+  - Filtro de negociación (anti-artefacto 0.5 inicial): ≥ 2 precios distintos en las 24h
+    previas a t. Fijado ahora, antes de ver el resultado filtrado.
+  - Señal: 0.20 ≤ p ≤ 0.80 en t = end − 24h → comprar NO. Coste 0.02/acción + comisión.
+  - Predicción falsable: en Yes/No, frecuencia de YES < precio medio − 0.03 y retorno neto
+    medio > 0 con IC95% cluster > 0; en el control, diferencia significativamente menor.
+  - Variantes previstas: h=24h (principal), h=7d.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H004 — Deriva cerca de la resolución (decaimiento temporal)
 - Fuente: dinámica temporal.
