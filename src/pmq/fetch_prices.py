@@ -17,7 +17,7 @@ S = requests.Session()
 
 
 def targets(u):
-    d24 = pd.Timedelta("24h"); d7 = pd.Timedelta("7d")
+    d24 = pd.Timedelta("24h"); d7 = pd.Timedelta("7D")
     m = u.enable_ob & u.end.notna() & u.start.notna()
     m &= u.start < (u.end - d24)
     m &= u.closed_time.isna() | (u.closed_time > u.end - d7)
@@ -44,7 +44,7 @@ def fetch(row):
     end = row.end
     if pd.notna(row.closed_time) and row.closed_time < end:
         end = row.closed_time
-    a = int((row.end - pd.Timedelta("8d")).timestamp()) - 3600
+    a = int((row.end - pd.Timedelta("8D")).timestamp()) - 3600
     b = int(end.timestamp())
     for i in range(6):
         try:
@@ -66,11 +66,15 @@ def main():
     done = set()
     for f in glob.glob(os.path.join(OUT, "h001_*.jsonl.gz")):
         with gzip.open(f, "rt") as fh:
-            done.update(json.loads(l)["id"] for l in fh)
+            for l in fh:
+                r = json.loads(l)
+                if r["history"] is not None:  # los fallos se reintentan en la siguiente pasada
+                    done.add(r["id"])
     t = t[~t.id.isin(done)]
     print(f"objetivo {len(t)} pendientes (ya {len(done)})", flush=True)
     chunk = len(glob.glob(os.path.join(OUT, "h001_*.jsonl.gz")))
     rows = list(t.itertuples())
+    fails = 0
     with ThreadPoolExecutor(8) as ex:
         for i in range(0, len(rows), 5000):
             res = list(ex.map(fetch, rows[i:i + 5000]))
@@ -78,7 +82,10 @@ def main():
                 for r in res:
                     f.write(json.dumps(r) + "\n")
             chunk += 1
-            print(f"{i + len(res)}/{len(rows)} fallos={sum(r['history'] is None for r in res)}", flush=True)
+            nf = sum(r['history'] is None for r in res)
+            fails += nf
+            print(f"{i + len(res)}/{len(rows)} fallos={nf}", flush=True)
+    sys.exit(1 if fails else 0)
 
 
 if __name__ == "__main__":
