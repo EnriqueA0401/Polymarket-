@@ -11,10 +11,10 @@
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
    `nohup experiments/run_h002.sh &` (reinicios del contenedor lo matan).
-2. Escribir G0 de H006 (maker en extremos): con trades reales (Data API) estimar si un
-   maker que cotiza el lado caro (NO a ≤0.10 de YES) obtiene fills y PnL positivo neto de
-   selección adversa. Definir regla de fill pesimista (solo si hubo trade taker que cruza
-   nuestro precio, y a nuestro precio) ANTES de mirar resultados.
+2. H006 réplica pre-registrada (HYPOTHESES.md): precios con
+   `experiments/run_prices_h006r.sh` (TODO_OK en data/fetch_prices_h006r.log), luego
+   `python experiments/h006_g2.py rep` → reports/h006_rep.md. Un solo intento.
+   Éxito = IC95% PnL > 0 → seguir a G3 (holdout). Fallo → rechazar H006 y escribir findings.
 3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
