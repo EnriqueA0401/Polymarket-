@@ -56,7 +56,14 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción falsable: fill rate ≥ 20% y PnL medio por fill > 0 con IC95% cluster > 0.
   - Quién pierde: takers que compran longshots / venden favoritos con prisa. Riesgo: los
     fills llegan justo cuando hay información (selección adversa) → el test lo mide.
-- Estado: activa | Gate: G0 | Variantes: 0
+- G2 (reports/h006_g2.md): 24h fill 43%, PnL +0.63 c/acción (IC95% −0.43…+1.63);
+  7d fill 29%, PnL +0.14 c (IC −2.0…+2.2). Selección adversa fuerte (sin filtrar por
+  fill: +2.9 c). Predicción NO cumplida (IC incluye 0) → inconcluso por potencia.
+- Réplica pre-registrada (2026-10-14, antes de descargar nada): MISMA regla, solo h=24h,
+  eventos de entrenamiento con sha256(event_id) mod 1000 en [150, 450) (disjuntos de la
+  muestra usada). Un solo intento. Éxito = IC95% cluster del PnL > 0 en la réplica sola.
+  Si falla → H006 rechazada definitivamente.
+- Estado: activa | Gate: G2 (réplica pendiente) | Variantes: 3 (24h, 7d, réplica)
 
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.

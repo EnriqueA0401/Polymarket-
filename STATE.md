@@ -26,4 +26,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 6 (H001: 3; H002: 0; H003: 3)
+- 9 (H001: 3; H002: 0; H003: 3; H006: 3)
