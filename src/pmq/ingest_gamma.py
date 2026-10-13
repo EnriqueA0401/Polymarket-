@@ -1,10 +1,11 @@
 """Descarga el universo completo de mercados cerrados de Gamma.
 
-Paginación keyset en paralelo por ventanas mensuales de endDate (2019-01 … 2031-01) más
+Paginación keyset en paralelo por ventanas diarias de endDate (2019-01-01 … 2031-01-01) más
 una ventana abierta [2031, ∞). Los mercados sin endDate no son filtrables por esta vía:
 se cuentan aparte en la verificación (ver data_manifest.json).
 Uso: PYTHONPATH=src python -m pmq.ingest_gamma
-Salida: data/gamma/win_YYYY-MM.jsonl.gz (una por ventana; reanudable por ventana).
+Salida: data/gamma/win_YYYY-MM-DD.jsonl.gz (una por ventana; reanudable por ventana).
+Volumen observado: ~17-24k mercados cerrados por día en 2026 (sobre todo cripto/deportes).
 """
 import gzip, json, os, sys, time
 from concurrent.futures import ThreadPoolExecutor
@@ -59,15 +60,16 @@ def window(a, b, name):
         for m in rows:
             f.write(json.dumps(m) + "\n")
     os.replace(tmp, path)
-    print(f"{name} {len(rows)}", flush=True)
+    if len(rows) > 50:
+        print(f"{name} {len(rows)}", flush=True)
     return len(rows)
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    ms = pd.date_range("2019-01-01", "2031-01-01", freq="MS", tz="UTC")
+    ms = pd.date_range("2019-01-01", "2031-01-01", freq="D", tz="UTC")
     jobs = [(ms[i].strftime("%Y-%m-%dT%H:%M:%SZ"), ms[i + 1].strftime("%Y-%m-%dT%H:%M:%SZ"),
-             ms[i].strftime("%Y-%m")) for i in range(len(ms) - 1)]
+             ms[i].strftime("%Y-%m-%d")) for i in range(len(ms) - 1)]
     jobs.append(("2031-01-01T00:00:00Z", None, "2031plus"))
     jobs.reverse()  # los meses recientes son los más grandes: empezar por ellos
     with ThreadPoolExecutor(8) as ex:
