@@ -45,19 +45,47 @@ def parse(m):
     }
 
 
+STR_COLS = ["condition_id", "question", "outcome0", "token_yes", "token_no", "event_id", "series",
+            "category", "fee_type", "fee_schedule", "uma_status"]
+
+
 def build():
-    rows = []
+    """Construye el parquet por lotes (memoria acotada). Deduplica por id al final por columnas."""
+    import pyarrow as pa, pyarrow.parquet as pq
+    out = os.path.join(DATA, "universe_binary.parquet")
+    tmp = out + ".tmp"
+    writer, rows, seen, n, nclean = None, [], set(), 0, 0
+
+    def flush():
+        nonlocal writer, rows
+        if not rows:
+            return
+        df = pd.DataFrame(rows)
+        for c in STR_COLS:
+            df[c] = df[c].astype("string")
+        df["taker_base_fee"] = pd.to_numeric(df["taker_base_fee"], errors="coerce").astype("float64")
+        for c in ("start", "end", "closed_time"):
+            df[c] = pd.to_datetime(df[c], utc=True).astype("datetime64[us, UTC]")
+        t = pa.Table.from_pandas(df, preserve_index=False)
+        if writer is None:
+            writer = pq.ParquetWriter(tmp, t.schema)
+        writer.write_table(t.cast(writer.schema))
+        rows = []
+
     for f in sorted(glob.glob(os.path.join(DATA, "gamma", "win_*.jsonl.gz"))):
         with gzip.open(f, "rt") as fh:
             for line in fh:
                 r = parse(json.loads(line))
-                if r:
-                    rows.append(r)
-    df = pd.DataFrame(rows).drop_duplicates("id")
-    df.to_parquet(os.path.join(DATA, "universe_binary.parquet"))
-    return df
+                if r and r["id"] not in seen:   # ventanas con bordes inclusivos → duplicados
+                    seen.add(r["id"]); rows.append(r); n += 1; nclean += r["clean"]
+        if len(rows) >= 200_000:
+            flush()
+    flush()
+    writer.close()
+    os.replace(tmp, out)
+    return n, nclean / n
 
 
 if __name__ == "__main__":
-    d = build()
-    print(len(d), d.clean.mean())
+    n, c = build()
+    print(n, c)
