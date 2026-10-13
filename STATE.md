@@ -7,11 +7,12 @@
 - H001 — G0 fijado en HYPOTHESES.md. Código y tests (6) en src/pmq/h001.py, tests/.
 
 ## Siguiente paso exacto
-1. Ingesta Gamma COMPLETA (4384 ventanas diarias, 2026-10-13 18:10 UTC).
-2. `PYTHONPATH=src python -m pmq.universe` → data/universe_binary.parquet (en curso).
-3. Registrar hashes en data_manifest.json; aplicar muestreo por evento (H001) en
-   fetch_prices y ejecutarlo → data/prices/h001_*.
-4. Verificación G1 (timestamps, resoluciones, cobertura). Luego G2 con closedTime < 2026-04-12.
+1. Universo listo (4.1M binarios, reports/h001_g1_universe.md, hashes en data_manifest.json).
+2. Precios muestra H001 (107k mercados): `experiments/run_prices.sh` (reanudable,
+   escribe TODO_OK en data/fetch_prices.log). En curso 2026-10-13 18:50 UTC, ~1h.
+3. Al terminar: `python experiments/h001_g2.py` → reports/h001_g2.md (solo entrenamiento).
+   Sumar 2 al contador global (h=24h y h=7d).
+4. Revisar riesgo G1: endDate editado ex post (posible lookahead en t=end−h).
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
