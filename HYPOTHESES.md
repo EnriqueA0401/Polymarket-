@@ -42,7 +42,21 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Racional: el sesgo favorito-longshot queda dentro del spread; quien lo captura es el maker.
   Pierden los takers compradores de longshots. Riesgo: selección adversa al acercarse
   la resolución. Requiere datos de trades (Data API) para modelar fills sin optimismo.
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-14, antes de ver resultados):
+  - Universo: muestra de H001 (misma regla), entrenamiento. Señal en t = end − h con
+    p_t (prices-history, solo para decidir): 0.02 < p_t ≤ 0.10 → vender YES (orden límite
+    de compra de NO a q = 1 − (p_t + 0.01)); p_t ≥ 0.90 y < 0.98 → comprar YES a p_t − 0.01.
+  - Fill pesimista con trades taker reales en (t, t+24h]: solo si algún taker cruzó
+    ESTRICTAMENTE nuestro nivel (lado longshot: taker compra YES a precio > p_t+0.01, o
+    vende NO a < q; lado favorito: taker vende YES a < p_t−0.01, o compra NO a >
+    1−(p_t−0.01)). Fill al precio de nuestra orden, una vez. Sin fill → no hay posición.
+  - PnL por acción: pago − precio; makers sin comisión; rebates NO contados. Capital
+    bloqueado hasta cierre → anualizar.
+  - Variantes: h=24h (principal), h=7d.
+  - Predicción falsable: fill rate ≥ 20% y PnL medio por fill > 0 con IC95% cluster > 0.
+  - Quién pierde: takers que compran longshots / venden favoritos con prisa. Riesgo: los
+    fills llegan justo cuando hay información (selección adversa) → el test lo mide.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
