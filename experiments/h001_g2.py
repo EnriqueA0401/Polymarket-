@@ -14,9 +14,9 @@ from pmq.universe import DATA
 COLS = ["id", "y", "clean", "start", "end", "closed_time", "event_id", "category", "fee_schedule", "volume", "series"]
 
 
-def load_histories():
+def load_histories(prefix="h001"):
     hist = {}
-    for f in sorted(glob.glob(os.path.join(DATA, "prices", "h001_*.jsonl.gz"))):
+    for f in sorted(glob.glob(os.path.join(DATA, "prices", f"{prefix}_*.jsonl.gz"))):
         with gzip.open(f, "rt") as fh:
             for l in fh:
                 r = json.loads(l)
