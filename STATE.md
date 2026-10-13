@@ -1,17 +1,21 @@
 # STATE
 
 ## Qué se está haciendo
-- H001 CERRADA (rechazada G2: borde bruto ≈1 c < coste real ≈2 c). Ver findings/.
-- Siguiente hipótesis por prioridad: H002 (suma negRisk ≠ 1) — barata con libros vivos.
+- H001 CERRADA (rechazada G2). H002 activa: medición forward de arbitraje negRisk.
 
 ## Hipótesis activa
-- H002 — pendiente de escribir protocolo G0.
+- H002 — G0 fijado. Snapshots cada 30 min desde 2026-10-13 ~20:00 UTC con
+  `experiments/run_h002.sh` → data/h002/opps.csv (+ crudos de eventos con ret>0).
+  Snapshot piloto (opps_v0.csv, 9.6k eventos): 0 arbitrajes seguros A o B.
 
 ## Siguiente paso exacto
-1. Escribir G0 de H002 en HYPOTHESES.md (antes de ver datos): en eventos negRisk abiertos,
-   suma de best asks YES < 1 − costes (comprar todos) o suma de best bids > 1 (vender/NO).
-   Necesita libros vivos simultáneos; registrar snapshots periódicos (no hay historial).
-2. Script experiments/h002_snapshot.py: snapshot de todos los eventos negRisk abiertos.
+1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo
+   (el contenedor se reinicia y mata procesos).
+2. Tras 7 días de snapshots (≈2026-10-20): evaluar predicción G0 (≥5 eventos/semana con
+   neto ≥0.5% y anualizado ≥20%, solo safe_a o B). Confirmar cada caso con los libros crudos.
+3. Mientras: escribir G0 de H003 (sobreprecio de Yes). OJO: ya vi la calibración de H001
+   en entrenamiento (bins 0.4–0.6 con precio > frecuencia) → declararlo en G0 y confiar
+   en el holdout.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
@@ -22,4 +26,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 3 (H001: 3)
+- 3 (H001: 3; H002: 0)
