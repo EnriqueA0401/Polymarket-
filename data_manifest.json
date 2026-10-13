@@ -1,1 +1,12 @@
-{}
+{
+  "data/universe_binary.parquet": {
+    "sha256": "72ec51eb880d9d2d6945cb5b4ff4309b7ddb3cfee0b218bfba41537c0c6226ae",
+    "rows": 4098432,
+    "built": "2026-10-13"
+  },
+  "data/gamma/win_*.jsonl.gz": {
+    "sha256_concat_sorted": "f2c83c8533c5d58b4f52bbde78aeb6668ebda70ba027e0a78b1d081b2744007a",
+    "files": 4384,
+    "downloaded": "2026-10-12/13"
+  }
+}

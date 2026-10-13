@@ -4,7 +4,7 @@ Solo mercados que existían en end-24h y no cerraron antes de end-7d (necesario 
 Reanudable: guarda trozos data/prices/h001_XXXX.jsonl.gz con {"id", "history"}.
 Uso: PYTHONPATH=src python -m pmq.fetch_prices
 """
-import glob, gzip, json, os, sys, time
+import glob, gzip, hashlib, json, os, sys, time
 from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 import requests
@@ -22,6 +22,22 @@ def targets(u):
     m &= u.start < (u.end - d24)
     m &= u.closed_time.isna() | (u.closed_time > u.end - d7)
     return u[m]
+
+
+HOLDOUT_START = pd.Timestamp("2026-04-12", tz="UTC")
+K_TRAIN, K_HOLDOUT = 150, 20  # por mil eventos; fijado por presupuesto (~110k mercados), sin ver precios
+
+
+def in_sample(event_id, k):
+    h = int(hashlib.sha256(str(event_id).encode()).hexdigest(), 16) % 1000
+    return h < k
+
+
+def sample(t):
+    ho = t.closed_time >= HOLDOUT_START
+    k = ho.map({True: K_HOLDOUT, False: K_TRAIN})
+    keep = [in_sample(e, kk) for e, kk in zip(t.event_id, k)]
+    return t[keep]
 
 
 def fetch(row):
@@ -46,7 +62,7 @@ def fetch(row):
 def main():
     os.makedirs(OUT, exist_ok=True)
     u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"))
-    t = targets(u)
+    t = sample(targets(u))
     done = set()
     for f in glob.glob(os.path.join(OUT, "h001_*.jsonl.gz")):
         with gzip.open(f, "rt") as fh:

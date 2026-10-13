@@ -24,7 +24,8 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Muestreo (fijado 2026-10-13, antes de ver precios): el universo elegible tiene
     millones de mercados; se descargan precios de una muestra aleatoria por EVENTO
     (sha256(event_id) mod 1000 < K), K elegido solo por presupuesto (~100k mercados),
-    sin mirar resultados. Eventos enteros entran o salen juntos.
+    sin mirar resultados. Fijado tras contar el universo: K_train=150, K_holdout=20
+    (entrenamiento 425k mercados, holdout 2.24M; ver reports/h001_g1_universe.md). Eventos enteros entran o salen juntos.
   - Clusters = event id. Métricas: gap de calibración por bin, retorno neto por
     operación y anualizado por días hasta cierre.
 - Estado: activa | Gate: G0 | Variantes: 0
