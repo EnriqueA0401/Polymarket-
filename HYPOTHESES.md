@@ -35,7 +35,27 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Fuente: fuentes externas.
 - Racional: las casas con mucho volumen agregan mejor información; divergencias
   sistemáticas podrían ser explotables.
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-14, antes de cruzar datos):
+  - Fuente externa: football-data.co.uk (gratis): resultados y cuotas Pinnacle pre-partido
+    (PSH/PSD/PSA, recogidas días antes → conocidas antes de t, sin lookahead) y de cierre
+    (PSCH/PSCD/PSCA, SOLO para evaluar CLV, nunca como señal). Ligas: las 5 grandes +
+    las demás que cubra football-data.
+  - Universo Polymarket: mercados binarios de ganador de partido de fútbol de esas ligas,
+    emparejados por fecha y nombres de equipo (tabla de equivalencias versionada en repo;
+    los no emparejados se cuentan).
+  - t = inicio del partido − 1h. Precio ejecutable = peor precio real pagado por takers del
+    lado comprado en (t−1h, t] (Data API); sin trades → no operable.
+  - Prob. justa = Pinnacle pre-partido sin margen (normalización proporcional).
+  - Señal: comprar en Polymarket el resultado con prob_justa − precio_ejecutable − comisión
+    ≥ θ = 0.03 (fijo).
+  - Predicción falsable: PnL medio > 0 con IC95% cluster (partido) > 0, y CLV positivo
+    frente a Pinnacle cierre. Además (diagnóstico) Brier de Pinnacle pre-partido < Brier
+    de Polymarket en t.
+  - Quién pierde: aficionados que compran a su equipo en Polymarket por encima del precio
+    de un mercado profesional.
+  - Limitación: hora exacta de recogida de PSH desconocida (suele ser viernes/martes);
+    estrategia real necesitaría cuotas vivas (forward, G7).
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
