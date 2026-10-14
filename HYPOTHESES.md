@@ -94,19 +94,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     rentabilidad de cartera > 6%/año. Horizonte: ~3–4 meses (resolución a ~90 d).
 - Estado: activa (forward, registro diario) | Gate: G7 | Variantes: 0
 
-### H028 — "¿Batirá X sus beneficios trimestrales?" vs historial de batidas
-- Fuente: subagente (FactSet: tasa de batida S&P 500 ~76% a 10 años; 682 mercados).
-- Racional: el historial de batidas de cada empresa es público antes del informe; si el
-  mercado trata el evento como ~50/50, hay borde. Pierden quienes ignoran la tasa base.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: mercados binarios de entrenamiento con pregunta de "beat earnings" (o similar).
-  - Prob. = (k + 0.76·4)/(n + 4), con k batidas en los últimos n ≤ 8 trimestres anteriores al
-    informe (solo informes con fecha < t).
-  - t = 24 h antes de la hora del informe (o de endDate si no consta). Precio = peor compra
-    taker real en (t−23 h, t]. Señal: prob − precio − comisión ≥ 0.05 (YES o NO).
-  - Clusters = fecha de informe. Predicción: PnL > 0 con IC95% > 0 y ≥ 150 mercados.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H029–H031 — Solo forward (menos de 150 eventos en entrenamiento)
 - H029 TSA pasajeros diarios (modelo estacional); H030 Netflix top 10 semanal con rankings
   diarios; H031 taquilla de estreno con preestrenos.
@@ -545,3 +532,17 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción: PnL > 0 con IC95% cluster (ciudad-fecha) > 0; Brier modelo < Brier precio.
 - G2 (reports/h027_g2.md): 685 apuestas, PnL −3.25 c (IC −5.79…−0.61); Brier modelo 0.153 vs PM 0.086.
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H027_metar_mismo_dia.md | Variantes: 1
+
+### H028 — "¿Batirá X sus beneficios trimestrales?" vs historial de batidas
+- Fuente: subagente (FactSet: tasa de batida S&P 500 ~76% a 10 años; 682 mercados).
+- Racional: el historial de batidas de cada empresa es público antes del informe; si el
+  mercado trata el evento como ~50/50, hay borde. Pierden quienes ignoran la tasa base.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios de entrenamiento con pregunta de "beat earnings" (o similar).
+  - Prob. = (k + 0.76·4)/(n + 4), con k batidas en los últimos n ≤ 8 trimestres anteriores al
+    informe (solo informes con fecha < t).
+  - t = 24 h antes de la hora del informe (o de endDate si no consta). Precio = peor compra
+    taker real en (t−23 h, t]. Señal: prob − precio − comisión ≥ 0.05 (YES o NO).
+  - Clusters = fecha de informe. Predicción: PnL > 0 con IC95% > 0 y ≥ 150 mercados.
+- G2 (reports/h028_g2.md): 250 apuestas, PnL −2.85 c (IC −7.54…+2.67); Brier modelo 0.181 vs PM 0.157.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H028_batir_beneficios.md | Variantes: 1

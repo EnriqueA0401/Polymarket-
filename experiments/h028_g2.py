@@ -109,7 +109,12 @@ L = ["# H028 G2 — Tasa base de batidas vs precio ejecutable (solo entrenamient
      f"- Tasa YES {dg.y.mean():.3f}; precio YES medio {dg.px_yes.mean():.3f}; prob. modelo media {dg.prob.mean():.3f}.",
      "", "Calibración por tramo de precio YES:", "", "| tramo | n | precio | modelo | tasa YES |", "|---|---|---|---|---|"] + \
     [f"| {i} | {r.n} | {r.px:.3f} | {r.prob:.3f} | {r.y:.3f} |" for i, r in cal.iterrows()] + \
-    ["", "## Notas",
+    ["", "## Veredicto (predicción G0: PnL > 0 con IC95% > 0 y ≥ 150 mercados)", "",
+     (f"- {'CUMPLIDA' if h001.cluster_bootstrap(b, col='pnl', cluster=CL)[0] > 0 and len(b) >= 150 else 'NO cumplida'}: "
+      f"PnL neto {b.pnl.mean()*100:+.2f} c/acción; el modelo de tasa base tiene peor Brier que el precio "
+      f"(Δ {dg.dB.mean():+.4f}). El mercado ya incorpora la tasa de batida y la información específica de cada empresa."),
+     "- La rentabilidad anualizada es extrema porque el capital se bloquea ~1.6 días; su signo es lo relevante.",
+     "", "## Notas",
      "- Costes ×2: comisión ×2 y slippage adicional = max(0.01, peor − mediana de compras del lado en la ventana).",
      "- Rentabilidad de cartera: Σpnl / Σ(capital·días) · 365 con días = closedTime − t (sin capital ocioso entre fechas: optimista).",
      "- Clusters = fecha del informe (America/New_York); varios informes el mismo día comparten shocks de mercado.",

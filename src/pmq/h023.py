@@ -262,18 +262,20 @@ def k_events(markets, league):
     for e in rows.values():
         if None in e["mk"] or len(e["mk"]) != 2:
             continue
-        m = re.match(r"^[A-Z]+-(\d{2})([A-Z]{3})(\d{2})", e["event_ticker"])
+        m = re.match(r"^[A-Z]+-(\d{2})([A-Z]{3})(\d{2})(\d{4})?[A-Z]+?(G\d)?$", e["event_ticker"])
         if not m:
             continue
         date = pd.to_datetime(f"20{m.group(1)}-{m.group(2)}-{m.group(3)}", format="%Y-%b-%d").date()
-        out.append({**e, "date": date, "teams": frozenset(e["mk"])})
+        hhmm = int(m.group(4)[:2]) * 60 + int(m.group(4)[2:]) if m.group(4) else None   # hora ET (min)
+        out.append({**e, "date": date, "teams": frozenset(e["mk"]), "hhmm": hhmm, "dh": m.group(5) is not None})
     return out
 
 
 def match(pm, kev):
     """Empareja mercados PM (cols id, league, o0, o1, description, game_start) con eventos Kalshi
-    por (liga, fecha ET de gameStartTime, conjunto de equipos). Ambigüedad → excluido.
-    Devuelve DataFrame con status ∈ {ok, no_names, no_kalshi, ambiguous}."""
+    por (liga, fecha ET de gameStartTime, conjunto de equipos). Ambigüedad → excluido. Dobles jornadas
+    (ticker con sufijo G1/G2) → excluidas; si el ticker trae hora ET, debe distar ≤ 30 min de gameStartTime.
+    Devuelve DataFrame con status ∈ {ok, no_names, no_kalshi, ambiguous, doubleheader, time_mismatch}."""
     idx = {}
     for e in kev:
         idx.setdefault((e["league"], e["date"], e["teams"]), []).append(e)
@@ -291,6 +293,11 @@ def match(pm, kev):
         if len(cands) > 1:
             out.append({**base, "status": "ambiguous", "team0": names[0], "team1": names[1]}); continue
         e = cands[0]
+        if e["dh"]:
+            out.append({**base, "status": "doubleheader", "team0": names[0], "team1": names[1]}); continue
+        et = r.game_start.tz_convert("America/New_York")
+        if e["hhmm"] is not None and abs(et.hour * 60 + et.minute - e["hhmm"]) > 30:
+            out.append({**base, "status": "time_mismatch", "team0": names[0], "team1": names[1]}); continue
         mk = e["mk"][names[0]]
         out.append({**base, "status": "ok", "team0": names[0], "team1": names[1], "k_event": e["event_ticker"],
                     "k_ticker0": mk["ticker"], "k_result0": mk["result"], "k_close": mk["close"],

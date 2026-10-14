@@ -112,3 +112,20 @@ def test_null_random_entries_lose_costs():
     r = np.array([H.pnl(i, p, 0.05, yy) for i, p, yy in zip(idx, px, y)])
     exp = -(0.05 * px * (1 - px)).mean()
     assert abs(r.mean() - exp) < 0.004
+
+
+def test_match_doubleheader_and_time():
+    ms = [_kmk("KXMLBGAME-25MAY06CLEWSHG1", "CLE", "no"), _kmk("KXMLBGAME-25MAY06CLEWSHG1", "WSH", "yes"),
+          _kmk("KXMLBGAME-26APR041610MILKC", "MIL", "yes"), _kmk("KXMLBGAME-26APR041610MILKC", "KC", "no")]
+    kev = {e["event_ticker"]: e for e in H.k_events(ms, "MLB")}
+    assert kev["KXMLBGAME-25MAY06CLEWSHG1"]["dh"] and kev["KXMLBGAME-26APR041610MILKC"]["hhmm"] == 16 * 60 + 10
+    pm = pd.DataFrame([
+        {"id": 1, "league": "MLB", "o0": "Guardians", "o1": "Nationals", "description": "",
+         "game_start": pd.Timestamp("2025-05-06 22:00", tz="UTC")},
+        {"id": 2, "league": "MLB", "o0": "Brewers", "o1": "Royals", "description": "",
+         "game_start": pd.Timestamp("2026-04-04 23:10", tz="UTC")},   # 19:10 ET ≠ 16:10
+        {"id": 3, "league": "MLB", "o0": "Royals", "o1": "Brewers", "description": "",
+         "game_start": pd.Timestamp("2026-04-04 20:15", tz="UTC")},   # 16:15 ET ✓
+    ])
+    st = H.match(pm, list(kev.values())).set_index("id").status
+    assert st[1] == "doubleheader" and st[2] == "time_mismatch" and st[3] == "ok"
