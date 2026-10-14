@@ -1,5 +1,5 @@
 """H011 — mercados cripto Up/Down vs Binance. Probabilidad justa y datos de klines."""
-import io, os, zipfile
+import io, os, time, zipfile
 from math import erf, log, sqrt
 import numpy as np
 import pandas as pd
@@ -46,8 +46,16 @@ def load_klines(symbol, days):
         p = os.path.join(KDIR, f"{symbol}_{d:%Y-%m-%d}.parquet")
         if not os.path.exists(p):
             url = f"https://data.binance.vision/data/spot/daily/klines/{symbol}/1m/{symbol}-1m-{d:%Y-%m-%d}.zip"
-            r = requests.get(url, timeout=60)
-            if r.status_code != 200:
+            r = None
+            for i in range(6):
+                try:
+                    r = requests.get(url, timeout=60)
+                    if r.status_code in (200, 404):
+                        break
+                except requests.RequestException:
+                    r = None
+                time.sleep(2 ** i)
+            if r is None or r.status_code != 200:
                 continue
             z = zipfile.ZipFile(io.BytesIO(r.content))
             k = pd.read_csv(z.open(z.namelist()[0]), header=None).iloc[:, :5]
