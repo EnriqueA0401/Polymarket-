@@ -17,10 +17,11 @@
 ## Siguiente paso exacto
 1. Comprobar los 3 bucles (`tail -n1 data/h002.log`, `data/h010.log`, `data/h013live.log`);
    relanzar con `nohup experiments/run_<x>.sh &` si murieron (reinicios del contenedor).
-2. Escribir experiments/h013_2b_eval.py: PnL a resolución (resultado de Gamma) + recompensas,
-   IC bootstrap por mercado, rendimiento/día sobre max_capital. Revisar a mitad (~10-19) sin
-   cambiar reglas.
-3. Mientras: tests unitarios del paso de h013live (fills y devengo) con datos sintéticos.
+2. Evaluación: `python experiments/h013_2b_eval.py` → reports/h013_2b.md (resueltos a
+   resolución; no resueltos a mid, solo informativo). Mirar a mitad (~10-19) SIN cambiar reglas.
+3. Mientras miden los bucles: pensar hipótesis nuevas (cola vacía salvo forward). Ideas:
+   H014 recompensas en mercados negRisk/deportes con libros vacíos (variante de H013 solo
+   si 2b sale positiva), H015 holding rewards (4% APY en ciertos mercados) + cobertura.
 4. ~2026-10-20: evaluar H002; ~2026-10-21: H010. Tras 10 cerradas (van 8): meta_review.
 
 ## Bloqueos / limitaciones
