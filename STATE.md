@@ -7,15 +7,13 @@
 
 ## Hipótesis activa
 - H002 — snapshots con `experiments/run_h002.sh` → data/h002/opps.csv.
-- Segunda: elegir de la cola. Candidatas: H004 (deriva cerca de resolución) o una nueva de
-  flujo de wallets (seguir wallets rentables, validación fuera de muestra) — familia sin explorar.
+- H008 — seguir wallets rentables. G0 escrito, G2 ejecutándose.
 
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
    `nohup experiments/run_h002.sh &`.
-2. Escribir G0 de H008 (flujo de wallets): con Data API, PnL realizado por wallet en un
-   periodo de formación; seguir a las top-k wallets en un periodo posterior (entrada al
-   peor precio real tras su trade, con retraso ≥ 1 min). Fijar k, periodos y retraso ANTES.
+2. H008 (G0 escrito): `python experiments/h008.py` (cachés reanudables en data/trades_h008_*)
+   → reports/h008_g2.md. En curso desde 2026-10-14 ~01:30 UTC (~26.7k mercados + copias).
 3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
