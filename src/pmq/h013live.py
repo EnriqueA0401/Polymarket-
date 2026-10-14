@@ -18,6 +18,21 @@ STATE = os.path.join(LIVE, "state.json")
 N_MARKETS, STEP = 60, 300
 
 
+def crossed(tr, bid, ask):
+    """(hit_bid, hit_ask): algún trade taker cruza ESTRICTAMENTE nuestra puja YES o nuestra oferta YES
+    (incluye el libro complementario NO)."""
+    hb = any((x["outcomeIndex"] == 0 and x["side"] == "SELL" and float(x["price"]) < bid) or
+             (x["outcomeIndex"] == 1 and x["side"] == "BUY" and float(x["price"]) > 1 - bid) for x in tr)
+    ha = any((x["outcomeIndex"] == 0 and x["side"] == "BUY" and float(x["price"]) > ask) or
+             (x["outcomeIndex"] == 1 and x["side"] == "SELL" and float(x["price"]) < 1 - ask) for x in tr)
+    return hb, ha
+
+
+def settle(m, y):
+    """PnL a resolución de las posiciones acumuladas (y = pago YES)."""
+    return m["pos_yes"] * y - m["cost_yes"] + m["pos_no"] * (1 - y) - m["cost_no"]
+
+
 def init():
     ms = h013.rewarded_markets()
     now = pd.Timestamp.now(tz="UTC")
@@ -65,10 +80,7 @@ def step():
         q = m["quotes"]
         if q:
             tr = trades.fetch(cid, t0 + 1, now, os.path.join(LIVE, "trades")) or []
-            hb = any((x["outcomeIndex"] == 0 and x["side"] == "SELL" and float(x["price"]) < q["bid"]) or
-                     (x["outcomeIndex"] == 1 and x["side"] == "BUY" and float(x["price"]) > 1 - q["bid"]) for x in tr)
-            ha = any((x["outcomeIndex"] == 0 and x["side"] == "BUY" and float(x["price"]) > q["ask"]) or
-                     (x["outcomeIndex"] == 1 and x["side"] == "SELL" and float(x["price"]) < 1 - q["ask"]) for x in tr)
+            hb, ha = crossed(tr, q["bid"], q["ask"])
             if hb:
                 m["pos_yes"] += m["min_size"]; m["cost_yes"] += m["min_size"] * q["bid"]; m["fills_bid"] += 1
             if ha:   # vender YES a ask ≡ comprar NO a 1−ask
