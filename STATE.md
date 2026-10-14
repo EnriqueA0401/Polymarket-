@@ -1,20 +1,22 @@
 # STATE
 
 ## Qué se está haciendo
-- H001 y H003 CERRADAS (rechazadas). H002 activa: medición forward negRisk (hasta ~2026-10-20).
+- Cerradas (rechazadas): H001, H003, H006. H002 activa (forward negRisk hasta ~2026-10-20).
+- Patrón: el sesgo favorito-longshot existe (+1–3 c) pero queda dentro del spread
+  (taker) o lo neutraliza la selección adversa (maker). Familia "calibración en extremos"
+  casi agotada.
 
 ## Hipótesis activa
-- H002 — snapshots cada ~38 min con `experiments/run_h002.sh` → data/h002/opps.csv.
-- Segunda hipótesis: elegir siguiente de la cola (H004 deriva cerca de resolución o H006
-  maker en extremos). Usar SOLO precios ejecutables (trades reales/libros), ver costs.md.
+- H002 — snapshots con `experiments/run_h002.sh` → data/h002/opps.csv.
+- Segunda: elegir y escribir G0. Candidata: H004 (deriva cerca de la resolución) con
+  precios de trades reales; o H005 (casas de apuestas) si hay fuente de odds gratuita.
 
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
-   `nohup experiments/run_h002.sh &` (reinicios del contenedor lo matan).
-2. H006 réplica pre-registrada (HYPOTHESES.md): precios con
-   `experiments/run_prices_h006r.sh` (TODO_OK en data/fetch_prices_h006r.log), luego
-   `python experiments/h006_g2.py rep` → reports/h006_rep.md. Un solo intento.
-   Éxito = IC95% PnL > 0 → seguir a G3 (holdout). Fallo → rechazar H006 y escribir findings.
+   `nohup experiments/run_h002.sh &`.
+2. Explorar (sin mirar resultados de PnL) si existe una fuente gratuita de odds deportivas
+   históricas con timestamps (para H005). Si no, escribir G0 de H004 con ejecución por
+   trades reales (Data API) y la muestra h006r para entrenamiento.
 3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
@@ -26,4 +28,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 9 (H001: 3; H002: 0; H003: 3; H006: 3)
+- 9 (H001: 3; H002: 0; H003: 3; H006: 3). Cerradas: 3.

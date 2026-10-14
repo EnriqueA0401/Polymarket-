@@ -37,34 +37,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   sistemáticas podrían ser explotables.
 - Estado: pendiente | Gate: — | Variantes: 0
 
-### H006 — Market making en extremos (maker, sin comisión, con rebate)
-- Fuente: microestructura / derivada de H001.
-- Racional: el sesgo favorito-longshot queda dentro del spread; quien lo captura es el maker.
-  Pierden los takers compradores de longshots. Riesgo: selección adversa al acercarse
-  la resolución. Requiere datos de trades (Data API) para modelar fills sin optimismo.
-- Protocolo G0 (fijado 2026-10-14, antes de ver resultados):
-  - Universo: muestra de H001 (misma regla), entrenamiento. Señal en t = end − h con
-    p_t (prices-history, solo para decidir): 0.02 < p_t ≤ 0.10 → vender YES (orden límite
-    de compra de NO a q = 1 − (p_t + 0.01)); p_t ≥ 0.90 y < 0.98 → comprar YES a p_t − 0.01.
-  - Fill pesimista con trades taker reales en (t, t+24h]: solo si algún taker cruzó
-    ESTRICTAMENTE nuestro nivel (lado longshot: taker compra YES a precio > p_t+0.01, o
-    vende NO a < q; lado favorito: taker vende YES a < p_t−0.01, o compra NO a >
-    1−(p_t−0.01)). Fill al precio de nuestra orden, una vez. Sin fill → no hay posición.
-  - PnL por acción: pago − precio; makers sin comisión; rebates NO contados. Capital
-    bloqueado hasta cierre → anualizar.
-  - Variantes: h=24h (principal), h=7d.
-  - Predicción falsable: fill rate ≥ 20% y PnL medio por fill > 0 con IC95% cluster > 0.
-  - Quién pierde: takers que compran longshots / venden favoritos con prisa. Riesgo: los
-    fills llegan justo cuando hay información (selección adversa) → el test lo mide.
-- G2 (reports/h006_g2.md): 24h fill 43%, PnL +0.63 c/acción (IC95% −0.43…+1.63);
-  7d fill 29%, PnL +0.14 c (IC −2.0…+2.2). Selección adversa fuerte (sin filtrar por
-  fill: +2.9 c). Predicción NO cumplida (IC incluye 0) → inconcluso por potencia.
-- Réplica pre-registrada (2026-10-14, antes de descargar nada): MISMA regla, solo h=24h,
-  eventos de entrenamiento con sha256(event_id) mod 1000 en [150, 450) (disjuntos de la
-  muestra usada). Un solo intento. Éxito = IC95% cluster del PnL > 0 en la réplica sola.
-  Si falla → H006 rechazada definitivamente.
-- Estado: activa | Gate: G2 (réplica pendiente) | Variantes: 3 (24h, 7d, réplica)
-
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
 - Estado: pendiente (baja prioridad) | Gate: — | Variantes: 0
@@ -121,3 +93,32 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Ejecutabilidad (reports/h003_exec.md): con peor precio real de compra de NO, 24h −11.0%,
   7d −5.9%. Borde = artefacto de precios no ejecutables.
 - Estado: RECHAZADA | Gate: falla G1/G2 (precios no ejecutables) | Motivo: findings/H003_sobreprecio_yes.md | Variantes: 3
+
+### H006 — Market making en extremos (maker, sin comisión, con rebate)
+- Fuente: microestructura / derivada de H001.
+- Racional: el sesgo favorito-longshot queda dentro del spread; quien lo captura es el maker.
+  Pierden los takers compradores de longshots. Riesgo: selección adversa al acercarse
+  la resolución. Requiere datos de trades (Data API) para modelar fills sin optimismo.
+- Protocolo G0 (fijado 2026-10-14, antes de ver resultados):
+  - Universo: muestra de H001 (misma regla), entrenamiento. Señal en t = end − h con
+    p_t (prices-history, solo para decidir): 0.02 < p_t ≤ 0.10 → vender YES (orden límite
+    de compra de NO a q = 1 − (p_t + 0.01)); p_t ≥ 0.90 y < 0.98 → comprar YES a p_t − 0.01.
+  - Fill pesimista con trades taker reales en (t, t+24h]: solo si algún taker cruzó
+    ESTRICTAMENTE nuestro nivel (lado longshot: taker compra YES a precio > p_t+0.01, o
+    vende NO a < q; lado favorito: taker vende YES a < p_t−0.01, o compra NO a >
+    1−(p_t−0.01)). Fill al precio de nuestra orden, una vez. Sin fill → no hay posición.
+  - PnL por acción: pago − precio; makers sin comisión; rebates NO contados. Capital
+    bloqueado hasta cierre → anualizar.
+  - Variantes: h=24h (principal), h=7d.
+  - Predicción falsable: fill rate ≥ 20% y PnL medio por fill > 0 con IC95% cluster > 0.
+  - Quién pierde: takers que compran longshots / venden favoritos con prisa. Riesgo: los
+    fills llegan justo cuando hay información (selección adversa) → el test lo mide.
+- G2 (reports/h006_g2.md): 24h fill 43%, PnL +0.63 c/acción (IC95% −0.43…+1.63);
+  7d fill 29%, PnL +0.14 c (IC −2.0…+2.2). Selección adversa fuerte (sin filtrar por
+  fill: +2.9 c). Predicción NO cumplida (IC incluye 0) → inconcluso por potencia.
+- Réplica pre-registrada (2026-10-14, antes de descargar nada): MISMA regla, solo h=24h,
+  eventos de entrenamiento con sha256(event_id) mod 1000 en [150, 450) (disjuntos de la
+  muestra usada). Un solo intento. Éxito = IC95% cluster del PnL > 0 en la réplica sola.
+  Si falla → H006 rechazada definitivamente.
+- Réplica (reports/h006_rep.md): fill 43.6%, PnL +0.27 c (IC −0.54…+1.03). Fallo.
+- Estado: RECHAZADA | Gate: falla G2 (y réplica) | Motivo: findings/H006_maker_extremos.md | Variantes: 3
