@@ -8,16 +8,14 @@
 
 ## Hipótesis activa
 - H002 — snapshots con `experiments/run_h002.sh` → data/h002/opps.csv.
-- Segunda: H011 (cripto Up/Down vs Binance), nueva en la cola, prioridad alta.
+- H011 (cripto Up/Down vs Binance) — G0 escrito; G1 en curso.
 
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
    `nohup experiments/run_h002.sh &`.
-2. H011: explorar (sin PnL) estructura de los mercados "Bitcoin Up or Down" (series,
-   duración, regla de resolución: fuente y hora exacta del precio), disponibilidad de
-   klines 1m de Binance (api.binance.com o data.binance.vision) desde este entorno.
-   Luego escribir G0 (modelo de prob. justa, umbral, latencia de entrada ≥ 30 s,
-   precio real de trades, comisión 0.07).
+2. H011 (G0 escrito): `python experiments/h011_g1.py` → data/h011_sample.parquet +
+   reports/h011_g1.md (concordancia proxy Binance; excluir series < 97%). Después escribir
+   experiments/h011_g2.py: decisión a mitad de ventana, precio real en (s+30, s+90] s.
 3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
