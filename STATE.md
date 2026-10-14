@@ -19,7 +19,10 @@
   121 pares, máximo +0.29% (anualizado 0.14%) → coherente; evaluar ~2026-11-11. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
 ## Siguiente paso exacto
-1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
+1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026/H033 si murieron;
+   también lo ejecuta el hook SessionStart de .claude/settings.json).
+   Parcial 14/10 20:45: H002 21 snapshots, 5 eventos A seguros ≥0.5% pero 0 con anualizado ≥20%;
+   H010 7 snapshots, 0 pares ≥0.5%.
 2. Evaluación H026: `python experiments/h026_eval.py` → reports/h026_g7.md (útil cuando haya resoluciones).
 3. ~2026-10-20: evaluar H002; ~2026-10-21: H010. Si fallan y H026 no avanza → informe final.
 
