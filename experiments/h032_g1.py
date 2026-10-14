@@ -49,8 +49,12 @@ def scan_gamma():
 
 
 # ---------------------------------------------------------------- XTracker
+EPOCH = pd.Timestamp(0, tz="UTC")
+
+
 def ts(x):
-    return pd.to_datetime(pd.Series(x), utc=True, format="ISO8601").astype("int64").values // 10**9
+    """ISO8601 → segundos Unix (independiente de la resolución interna de pandas)."""
+    return ((pd.to_datetime(pd.Series(x), utc=True, format="ISO8601") - EPOCH) // pd.Timedelta(seconds=1)).values
 
 
 def posts(handle):
@@ -96,8 +100,8 @@ if __name__ == "__main__":
     ev["end"] = [pw[e][1] if pw[e] else np.nan for e in ev.index]
     es = pd.to_datetime(win.ev_start, utc=True, errors="coerce")
     ee = pd.to_datetime(win.ev_end, utc=True, errors="coerce")
-    ev["gamma_start"] = np.where(es.notna(), es.astype("int64") // 10**9, np.nan)
-    ev["gamma_end"] = np.where(ee.notna(), ee.astype("int64") // 10**9, np.nan)
+    ev["gamma_start"] = (es - EPOCH) / pd.Timedelta(seconds=1)
+    ev["gamma_end"] = (ee - EPOCH) / pd.Timedelta(seconds=1)
     ev["win_match"] = (ev.start == ev.gamma_start) & (ev.end == ev.gamma_end)
     ev["weekly"] = (ev.end - ev.start).between(h032.WEEK_S - 3600, h032.WEEK_S + 3600)  # cambio de hora
     ev["handle"] = ev.series.map(h032.SERIES_HANDLE)

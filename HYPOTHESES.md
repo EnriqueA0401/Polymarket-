@@ -85,27 +85,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   diarios; H031 taquilla de estreno con preestrenos.
 - Estado: pendientes (forward cuando haya capacidad) | Variantes: 0
 
-### H032 — Número de posts semanales (Musk, Trump, Zelenskyy…) con contador XTracker
-- Fuente: subagente de investigación. Eventos negRisk semanales por tramos para ~8 cuentas;
-  XTracker (fuente de resolución) publica cada post con createdAt e importedAt.
-- Racional: a mitad de semana el recuento acumulado + ritmo histórico de la cuenta dan una
-  distribución del total; si los tramos no la reflejan, hay borde. Pierden minoristas que
-  apuestan por intuición sobre el total.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: eventos "<cuenta> # tweets/posts <ventana>" con historial XTracker,
-    entrenamiento (closedTime < 2026-04-12). G1: recuento XTracker de la ventana vs tramo
-    resuelto ≥ 97% por cuenta, si no se excluye la cuenta.
-  - t = inicio de ventana + 4 días. Información: posts con importedAt ≤ t (nunca createdAt
-    solo). C = recuento acumulado en la ventana hasta t.
-  - Modelo: distribución empírica del número de posts en un periodo de la misma duración que
-    el restante, tomada de las últimas 8 ventanas no solapadas de esa cuenta anteriores a t.
-    P(tramo) = P(C + resto ∈ tramo).
-  - Precio = peor compra taker real en (t, t+30 min]; señal prob − precio − comisión ≥ 0.05
-    (YES o NO de cada tramo). Clusters = evento (cuenta-semana).
-  - Predicción: PnL > 0 con IC95% > 0 y ≥ 150 eventos (si hay menos, se reporta inviable y
-    pasa a forward). Brier modelo < Brier precio. Variantes: 1.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H033 — Combinatorio: P(gana presidencia 2028) ≤ P(gana nominación de su partido)
 - Fuente: H021 (arbitraje combinatorio), caso concreto y verificable.
 - Racional: para cada candidato, comprar NO(presidencia) + YES(nominación) paga ≥ 1 salvo que
@@ -561,3 +540,25 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción: PnL > 0 con IC95% cluster (partido) > 0 y ≥ 150 partidos. Variantes: 1.
 - G2 (reports/h023_g2.md): 1,324 ops / 636 partidos, PnL −2.56 c (IC −4.98…−0.03); seguimiento +0.54 c.
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H023_kalshi_leadlag.md | Variantes: 1
+
+### H032 — Número de posts semanales (Musk, Trump, Zelenskyy…) con contador XTracker
+- Fuente: subagente de investigación. Eventos negRisk semanales por tramos para ~8 cuentas;
+  XTracker (fuente de resolución) publica cada post con createdAt e importedAt.
+- Racional: a mitad de semana el recuento acumulado + ritmo histórico de la cuenta dan una
+  distribución del total; si los tramos no la reflejan, hay borde. Pierden minoristas que
+  apuestan por intuición sobre el total.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: eventos "<cuenta> # tweets/posts <ventana>" con historial XTracker,
+    entrenamiento (closedTime < 2026-04-12). G1: recuento XTracker de la ventana vs tramo
+    resuelto ≥ 97% por cuenta, si no se excluye la cuenta.
+  - t = inicio de ventana + 4 días. Información: posts con importedAt ≤ t (nunca createdAt
+    solo). C = recuento acumulado en la ventana hasta t.
+  - Modelo: distribución empírica del número de posts en un periodo de la misma duración que
+    el restante, tomada de las últimas 8 ventanas no solapadas de esa cuenta anteriores a t.
+    P(tramo) = P(C + resto ∈ tramo).
+  - Precio = peor compra taker real en (t, t+30 min]; señal prob − precio − comisión ≥ 0.05
+    (YES o NO de cada tramo). Clusters = evento (cuenta-semana).
+  - Predicción: PnL > 0 con IC95% > 0 y ≥ 150 eventos (si hay menos, se reporta inviable y
+    pasa a forward). Brier modelo < Brier precio. Variantes: 1.
+- G2 (reports/h032_g2.md): 188 apuestas / 49 eventos, PnL −5.37 c (IC −10.37…−0.25); Brier modelo 0.076 vs PM 0.063; solo 55 eventos usables.
+- Estado: RECHAZADA | Gate: falla G2 (y G4 inviable) | Motivo: findings/H032_posts_xtracker.md | Variantes: 1
