@@ -82,7 +82,25 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   si un trade taker cruza estrictamente el nivel; posiciones a resolución. Comparar pérdida
   por día con la recompensa MÁXIMA posible (tasa diaria × cuota 1). Si pérdida > recompensa
   máxima en la mediana → rechazar. Si no → etapa 2b forward (G7) con libros vivos.
-- Estado: activa | Gate: G1 (verificación) | Variantes: 0
+- Etapa 2a (reports/h013_2a.md, 300 mercados de entrenamiento, ventana end−48h…end−24h):
+  ~9 fills/día; PnL de cotización mediana 0.00 USD/día (media +0.21) vs recompensa máxima
+  mediana 10 USD/día → la selección adversa NO anula la recompensa. Pasa a 2b.
+- Verificación de pagos: Data API /activity?type=REWARD muestra pagos diarios reales a
+  makers de mercados recompensados (p. ej. 300–2,800 USD/día a los mayores). El programa
+  paga de verdad; falta saber qué cuota obtendría un maker pequeño.
+- Etapa 2b (pre-registrada 2026-10-14, antes de ver datos; paper trading, sin dinero):
+  - 60 mercados aleatorios (semilla 0) del conjunto recompensado actual con mid en
+    [0.15, 0.85], tasa ≥ 5 USD/día, endDate en 2–10 días.
+  - Cada 5 min: libros YES+NO → mid del libro combinado; órdenes propias hipotéticas a
+    mid ± v/2, tamaño min_size. Cuota = min(q/(q+Q1), q/(q+Q2)) sin contarnos a nosotros
+    en Q. Recompensa devengada = tasa × cuota × 5/1440 (solo si la recompensa diaria
+    estimada del mercado ≥ 1 USD; si no, 0 por el mínimo de pago).
+  - Fills: trades taker (Data API) del intervalo que crucen ESTRICTAMENTE nuestro nivel →
+    posición de min_size al precio propio (una por lado e intervalo). Hasta resolución.
+  - Duración: hasta que resuelvan los 60 o 14 días. Capital = máx. capital simultáneo.
+  - Éxito: Σ(PnL + recompensas) > 0 con IC95% bootstrap por mercado > 0 y rendimiento
+    mediano ≥ 0.3%/día sobre capital. Si no → rechazar.
+- Estado: activa | Gate: etapa 2b (forward) | Variantes: 1 (etapa 2a)
 
 ## Cerradas
 
