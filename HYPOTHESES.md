@@ -118,6 +118,14 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 ### H023 — Lead-lag Kalshi → Polymarket
 - Fuente: subagente. Prior bajo (PM suele liderar), exige latencia. Estado: pendiente | Variantes: 0
 
+### H024 — Carry en NO a largo plazo + holding rewards (derivada de H017)
+- Fuente: H017 (borde por acción +1.8 c significativo pero anualizado insuficiente).
+- AVISO de snooping: se diseña tras ver H017 en entrenamiento → el veredicto debe salir del
+  HOLDOUT (G3), una sola vez, y cuenta como prueba nueva en el contador.
+- Idea: limitar a mercados con holdingRewardsEnabled=true (campo de Gamma, 4% APY documentado)
+  y sumar esa recompensa prorrateada; carteras diversificadas por tema.
+- Estado: pendiente | Gate: — | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
