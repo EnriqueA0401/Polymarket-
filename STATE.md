@@ -13,6 +13,8 @@
   2026-10-14 15:42 (data/h026/signals.csv; 104 señales iniciales en 29 eventos). Resolución
   ~enero 2027; evaluar con rentabilidad de CARTERA y censura por evento.
 - Meta-revisión nº2: sin borde explotable con datos públicos tras 17 cerradas.
+- H023 (lead-lag Kalshi→PM pre-partido): G0 escrito, G1/G2 delegados a subagente.
+- Subagente investigando ideas con información lenta/privilegiada (meta-revisión).
 
 ## Siguiente paso exacto
 1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
