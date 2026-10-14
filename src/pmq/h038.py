@@ -49,7 +49,7 @@ def kalshi_fee(c, p, mult=1.0, rate=FEE_RATE):
 def pnl_per_contract(side, price, result, c=ORDER_C, mult=1.0, fee_mult=1.0, extra_slip=0.0):
     """PnL por contrato (USD) de comprar `side` a `price` y mantener hasta liquidación.
     fee_mult escala la comisión (costes ×2); extra_slip empeora el precio pagado."""
-    q = min(price + extra_slip, 0.99)
+    q = min(price + extra_slip, 1.0)
     fee = fee_mult * kalshi_fee(c, q, mult) / c
     if result not in ("yes", "no"):          # anulado: se devuelve el coste, se pierde la comisión
         return -fee
@@ -74,7 +74,8 @@ def norm_trades(raw):
             continue
         rows.append((x["created_time"], float(yp), side, float(x.get("count_fp") or x.get("count") or 0)))
     df = pd.DataFrame(rows, columns=["created_time", "yes", "side", "count"])
-    df["ts"] = pd.to_datetime(df.created_time, utc=True, format="mixed").astype("int64") / 1e9 if len(df) else []
+    ts = pd.to_datetime(df.created_time, utc=True, format="mixed")
+    df["ts"] = (ts - pd.Timestamp(0, tz="UTC")).dt.total_seconds() if len(df) else pd.Series(dtype=float)
     return df.sort_values("ts", kind="stable").reset_index(drop=True)
 
 
@@ -169,35 +170,6 @@ M_KEEP = ("ticker", "event_ticker", "market_type", "status", "result", "open_tim
           "expected_expiration_time", "settlement_ts", "volume_fp", "can_close_early", "title")
 
 
-def event_markets(event_ticker):
-    """Mercados históricos (archivados) del evento, SOLO los de entrenamiento (liquidados antes del
-    holdout). Los de holdout se descartan sin guardarse; se devuelve su número. Caché."""
-    d = os.path.join(CACHE, "ev")
-    os.makedirs(d, exist_ok=True)
-    path = os.path.join(d, f"{event_ticker}.json.gz")
-    c = _load(path) if os.path.exists(path) else None
-    if c is not None:
-        return c
-    out, n_hold, cur = [], 0, None
-    while True:
-        q = {"event_ticker": event_ticker, "limit": 1000}
-        if cur:
-            q["cursor"] = cur
-        r = k_get("/historical/markets", q) or {}
-        for m in r.get("markets", []):
-            st = m.get("settlement_ts") or m.get("close_time")
-            if not st or pd.Timestamp(st) >= HOLDOUT_START:
-                n_hold += 1
-                continue
-            out.append({k: m.get(k) for k in M_KEEP})
-        cur = r.get("cursor")
-        if not cur or not r.get("markets"):
-            break
-    res = {"markets": out, "n_holdout_dropped": n_hold}
-    _dump(res, path)
-    return res
-
-
 T_KEEP = ("created_time", "yes_price_dollars", "count_fp", "taker_outcome_side", "taker_side",
           "is_block_trade")
 
@@ -230,9 +202,38 @@ def market_trades(ticker, t):
     return res
 
 
-def market_obs(m, raw):
-    """Observación de un mercado en t: une metadatos + decide() sobre los trades cacheados."""
-    tr = norm_trades(raw["window"] + raw["prev"])
-    t = m["t"]
-    tr = tr[tr.ts <= t]          # cinturón y tirantes: nada posterior a t
-    return decide(tr, t)
+def trades_cache_path(ticker, t):
+    return os.path.join(CACHE, "tr", f"{ticker}_{int(t)}.json.gz")
+
+
+def build_obs(uni):
+    """Una fila por mercado muestreado y elegible con la decisión en t (solo trades ≤ t, cacheados).
+    Mercados sin caché de trades se marcan has_cache=False (no se descargan aquí)."""
+    rows = []
+    for m in uni.itertuples(index=False):
+        raw = _load(trades_cache_path(m.ticker, m.t))
+        if raw is None:
+            rows.append(dict(ticker=m.ticker, has_cache=False))
+            continue
+        tr = norm_trades(raw["window"] + raw["prev"])
+        tr = tr[tr.ts <= m.t]          # cinturón y tirantes: nada posterior a t
+        rows.append(dict(ticker=m.ticker, has_cache=True, **decide(tr, m.t)))
+    obs = pd.DataFrame(rows)
+    return uni.merge(obs, on="ticker", how="left")
+
+
+def add_pnl(obs, c=ORDER_C, fee_mult=1.0, slip2=False, mult_floor=None):
+    """PnL por contrato (USD) de las operaciones (señal + precio ejecutable). slip2: empeora el precio
+    en max(0.01, exec − ref) (dobla el deslizamiento observado frente al último trade, mínimo 1 tick)."""
+    tr = obs[obs.side.notna() & obs.exec_price.notna()].copy()
+    mult = tr.fee_mult.fillna(1.0).astype(float)
+    if mult_floor is not None:
+        mult = mult.clip(lower=mult_floor)
+    extra = (tr.exec_price - tr.ref_price).clip(lower=0.01) if slip2 else pd.Series(0.0, index=tr.index)
+    tr["pnl"] = [pnl_per_contract(s, p, r, c=c, mult=mm, fee_mult=fee_mult, extra_slip=e)
+                 for s, p, r, mm, e in zip(tr.side, tr.exec_price, tr.result, mult, extra)]
+    q = (tr.exec_price + extra).clip(upper=1.0)
+    tr["capital"] = q + [fee_mult * kalshi_fee(c, x, mm) / c for x, mm in zip(q, mult)]
+    st = pd.to_datetime(tr.settlement_ts.fillna(tr.close_time), utc=True, format="mixed")
+    tr["days"] = ((st - pd.Timestamp(0, tz="UTC")).dt.total_seconds() - tr.t).clip(lower=3600) / 86400
+    return tr

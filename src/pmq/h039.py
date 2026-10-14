@@ -74,7 +74,8 @@ def k_buys(trades, team):
             rows.append((x["created_time"], 1 - team, round(1 - y, 4), float(x["count_fp"])))
     df = pd.DataFrame(rows, columns=["t", "exp", "price", "size"])
     if len(df):
-        df["t"] = pd.to_datetime(df.t, utc=True, format="mixed").astype("int64") / 1e9
+        ts = pd.to_datetime(df.t, utc=True, format="mixed")
+        df["t"] = (ts - pd.Timestamp(0, tz="UTC")).dt.total_seconds()     # independiente de la resolución (ns/us)
     return df.astype({"t": float})
 
 
