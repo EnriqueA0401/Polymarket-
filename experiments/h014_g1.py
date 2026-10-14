@@ -73,7 +73,7 @@ def om_path(st, a, b):
     return os.path.join(OM, f"{st}_{a}_{b}.json")
 
 
-def fetch_om(st, a, b, tries=60):
+def fetch_om(st, a, b, tries=400):
     """Open-Meteo Previous Runs (horario, UTC) para la estación `st` en [a, b]. Caché en disco."""
     path = om_path(st, a, b)
     if os.path.exists(path):
@@ -90,10 +90,10 @@ def fetch_om(st, a, b, tries=60):
                 json.dump(d, open(tmp, "w"))
                 os.replace(tmp, path)
                 return d
-            print(st, r.status_code, r.text[:120], flush=True)
+            print(st, a, r.status_code, flush=True)
         except requests.RequestException as e:
-            print(st, "exc", str(e)[:120], flush=True)
-        time.sleep(min(30 + 10 * i, 300))
+            print(st, a, "exc", flush=True)
+        time.sleep(4)
     return None
 
 
@@ -117,10 +117,20 @@ def geocode(cities):
     return geo
 
 
-def ranges(m):
+def ranges(m, chunk=60):
+    """{estación: [(a, b), ...]} trozos de ≤ `chunk` días que cubren [primera fecha − 1, última + 1]."""
     g = m.groupby("station").target.agg(["min", "max"])
-    return {st: ((r["min"] - timedelta(days=1)).isoformat(), (r["max"] + timedelta(days=1)).isoformat())
-            for st, r in g.iterrows() if st in h014.STATIONS}
+    out = {}
+    for st, r in g.iterrows():
+        if st not in h014.STATIONS:
+            continue
+        a, end = r["min"] - timedelta(days=1), r["max"] + timedelta(days=1)
+        out[st] = []
+        while a <= end:
+            b = min(a + timedelta(days=chunk - 1), end)
+            out[st].append((a.isoformat(), b.isoformat()))
+            a = b + timedelta(days=1)
+    return out
 
 
 def hourly_dict(d):
@@ -138,10 +148,11 @@ def build_forecasts(m):
                                     t_dec=("t_dec", "first"), n_st=("station", "nunique"), n_tg=("target", "nunique")).reset_index()
     R = ranges(m)
     H = {}
-    for st, (a, b) in R.items():
-        p = om_path(st, a, b)
-        if os.path.exists(p):
-            H[st] = hourly_dict(json.load(open(p)))
+    for st, chunks in R.items():
+        for a, b in chunks:
+            p = om_path(st, a, b)
+            if os.path.exists(p):
+                H.setdefault(st, {}).update(hourly_dict(json.load(open(p))))
     fc, lead2 = [], []
     for r in ev.itertuples():
         if r.station not in H:
@@ -159,9 +170,10 @@ def build_forecasts(m):
 
 def main_fetch():
     m = build_markets()
-    for st, (a, b) in sorted(ranges(m).items()):
-        d = fetch_om(st, a, b)
-        print(st, a, b, "ok" if d else "FAIL", flush=True)
+    for st, chunks in sorted(ranges(m).items()):
+        for a, b in chunks:
+            d = fetch_om(st, a, b)
+            print(st, a, b, "ok" if d else "FAIL", flush=True)
 
 
 def sha(path):

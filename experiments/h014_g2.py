@@ -67,6 +67,8 @@ b["pnl"] = [h014.pnl(s, p, r, y) for s, p, r, y in zip(b.side, b.px, b.rate, b.y
 spread = (b.px_yes + b.px_no - 1) / 2
 b["slip2"] = np.where(spread.notna(), np.maximum(spread.fillna(0), 0.01), 0.01)
 b["pnl2"] = [h014.pnl(s, p, r, y, 2.0, sl) for s, p, r, y, sl in zip(b.side, b.px, b.rate, b.y, b.slip2)]
+b["pnl_fee0"] = [h014.pnl(s, p, (r if isinstance(fs, str) and fs else 0.0), y)
+                 for s, p, r, y, fs in zip(b.side, b.px, b.rate, b.y, b.fee_schedule)]
 b["ret"] = b.pnl / (b.px + [h014.fee(p, r) for p, r in zip(b.px, b.rate)])
 
 
@@ -116,6 +118,8 @@ L += ["", "## Resultado (mitad 2)", "",
       f"- sin los 5 mejores eventos: n={len(b5):,}, {b5.pnl.mean()*100:+.3f} c (IC95% {lo5*100:+.3f} … {hi5*100:+.3f})",
       f"- por lado: " + "; ".join(f"{s}: n={len(g)}, {g.pnl.mean()*100:+.2f} c" for s, g in b.groupby("side")),
       f"- tasa de comisión media aplicada {b.rate.mean():.3f} (h001.fee_rate; 0.07 pesimista si el mercado no expone feeSchedule)",
+      f"- diagnóstico (no es variante): mismas apuestas con comisión 0 donde el mercado no expone feeSchedule: "
+      f"{b.pnl_fee0.mean()*100:+.3f} c",
       "", "## Probabilidad: modelo vs precio ejecutable", "",
       f"- mercados limpios con precio YES ejecutable: {len(q):,} en {q.event_id.nunique():,} eventos",
       f"- Brier modelo {((q.prob - q.y) ** 2).mean():.4f} vs precio {((q.px_yes - q.y) ** 2).mean():.4f}; "
