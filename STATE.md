@@ -1,22 +1,21 @@
 # STATE
 
 ## Qué se está haciendo
-- Cerradas (rechazadas): H001, H003, H006. H002 activa (forward negRisk hasta ~2026-10-20).
-- Patrón: el sesgo favorito-longshot existe (+1–3 c) pero queda dentro del spread
-  (taker) o lo neutraliza la selección adversa (maker). Familia "calibración en extremos"
-  casi agotada.
+- Cerradas (rechazadas): H001, H003, H005, H006. H002 activa (forward negRisk hasta ~2026-10-20).
+- Patrón: precios de PM bien calibrados una vez se usan precios ejecutables; los sesgos
+  de calibración quedan dentro del spread o los anula la selección adversa.
 
 ## Hipótesis activa
 - H002 — snapshots con `experiments/run_h002.sh` → data/h002/opps.csv.
-- H005 — G1 superado (10k mercados emparejados). Siguiente: G2.
+- Segunda: elegir de la cola. Candidatas: H004 (deriva cerca de resolución) o una nueva de
+  flujo de wallets (seguir wallets rentables, validación fuera de muestra) — familia sin explorar.
 
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
    `nohup experiments/run_h002.sh &`.
-2. H005 G1 superado (data/h005_matches.parquet, `python experiments/h005_g1.py`).
-   Siguiente: G2 en entrenamiento (closedTime < 2026-04-12): trades taker en (t−1h, t],
-   t = kickoff − 1h; señal θ=0.03 con PSH sin margen; PnL, IC cluster por partido, CLV vs
-   PSCH y Brier PM vs Pinnacle. Script experiments/h005_g2.py (por escribir).
+2. Escribir G0 de H008 (flujo de wallets): con Data API, PnL realizado por wallet en un
+   periodo de formación; seguir a las top-k wallets en un periodo posterior (entrada al
+   peor precio real tras su trade, con retraso ≥ 1 min). Fijar k, periodos y retraso ANTES.
 3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
@@ -28,4 +27,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 9 (H001: 3; H002: 0; H003: 3; H006: 3). Cerradas: 3.
+- 10 (H001: 3; H002: 0; H003: 3; H005: 1; H006: 3). Cerradas: 4.

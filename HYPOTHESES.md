@@ -31,40 +31,15 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   riesgo de resolución; ¿es el descuento mayor que el riesgo real?
 - Estado: pendiente | Gate: — | Variantes: 0
 
-### H005 — Polymarket vs casas de apuestas deportivas
-- Fuente: fuentes externas.
-- Racional: las casas con mucho volumen agregan mejor información; divergencias
-  sistemáticas podrían ser explotables.
-- Protocolo G0 (fijado 2026-10-14, antes de cruzar datos):
-  - Fuente externa: football-data.co.uk (gratis): resultados y cuotas Pinnacle pre-partido
-    (PSH/PSD/PSA, recogidas días antes → conocidas antes de t, sin lookahead) y de cierre
-    (PSCH/PSCD/PSCA, SOLO para evaluar CLV, nunca como señal). Ligas: las 5 grandes +
-    las demás que cubra football-data.
-  - Universo Polymarket: mercados binarios de ganador de partido de fútbol de esas ligas,
-    emparejados por fecha y nombres de equipo (tabla de equivalencias versionada en repo;
-    los no emparejados se cuentan).
-  - t = inicio del partido − 1h. Precio ejecutable = peor precio real pagado por takers del
-    lado comprado en (t−1h, t] (Data API); sin trades → no operable.
-  - Prob. justa = Pinnacle pre-partido sin margen (normalización proporcional).
-  - Señal: comprar en Polymarket el resultado con prob_justa − precio_ejecutable − comisión
-    ≥ θ = 0.03 (fijo).
-  - Predicción falsable: PnL medio > 0 con IC95% cluster (partido) > 0, y CLV positivo
-    frente a Pinnacle cierre. Además (diagnóstico) Brier de Pinnacle pre-partido < Brier
-    de Polymarket en t.
-  - Quién pierde: aficionados que compran a su equipo en Polymarket por encima del precio
-    de un mercado profesional.
-  - Limitación: hora exacta de recogida de PSH desconocida (suele ser viernes/martes);
-    estrategia real necesitaría cuotas vivas (forward, G7).
-  - Aclaración pre-G2: "comprar el resultado" incluye YES (gana X) y NO (no gana X) del
-    mercado "Will X win on D?"; prob. justa del NO = 1 − prob. justa del YES.
-- G1 (reports/h005_g1.md): 10,889 candidatos, 10,083 emparejados con resolución limpia,
-  0 discrepancias PM vs resultado real tras alias/umbral (los ajustes usaron solo la
-  coherencia de resolución, nunca precios). endDate = kickoff (mediana 0 h). G1 superado.
-- Estado: activa | Gate: G1 | Variantes: 0
-
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
 - Estado: pendiente (baja prioridad) | Gate: — | Variantes: 0
+
+### H009 — Polymarket vs cuotas vivas (forward)
+- Fuente: fuentes externas (derivada de H005). Requiere cuotas en vivo simultáneas (p.ej.
+  The Odds API, plan gratuito limitado). Solo forward/paper trading. Baja prioridad:
+  H005 mostró que PM ya es tan preciso como Pinnacle pre-partido.
+- Estado: pendiente | Gate: — | Variantes: 0
 
 ## Cerradas
 
@@ -147,3 +122,35 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   Si falla → H006 rechazada definitivamente.
 - Réplica (reports/h006_rep.md): fill 43.6%, PnL +0.27 c (IC −0.54…+1.03). Fallo.
 - Estado: RECHAZADA | Gate: falla G2 (y réplica) | Motivo: findings/H006_maker_extremos.md | Variantes: 3
+
+### H005 — Polymarket vs casas de apuestas deportivas
+- Fuente: fuentes externas.
+- Racional: las casas con mucho volumen agregan mejor información; divergencias
+  sistemáticas podrían ser explotables.
+- Protocolo G0 (fijado 2026-10-14, antes de cruzar datos):
+  - Fuente externa: football-data.co.uk (gratis): resultados y cuotas Pinnacle pre-partido
+    (PSH/PSD/PSA, recogidas días antes → conocidas antes de t, sin lookahead) y de cierre
+    (PSCH/PSCD/PSCA, SOLO para evaluar CLV, nunca como señal). Ligas: las 5 grandes +
+    las demás que cubra football-data.
+  - Universo Polymarket: mercados binarios de ganador de partido de fútbol de esas ligas,
+    emparejados por fecha y nombres de equipo (tabla de equivalencias versionada en repo;
+    los no emparejados se cuentan).
+  - t = inicio del partido − 1h. Precio ejecutable = peor precio real pagado por takers del
+    lado comprado en (t−1h, t] (Data API); sin trades → no operable.
+  - Prob. justa = Pinnacle pre-partido sin margen (normalización proporcional).
+  - Señal: comprar en Polymarket el resultado con prob_justa − precio_ejecutable − comisión
+    ≥ θ = 0.03 (fijo).
+  - Predicción falsable: PnL medio > 0 con IC95% cluster (partido) > 0, y CLV positivo
+    frente a Pinnacle cierre. Además (diagnóstico) Brier de Pinnacle pre-partido < Brier
+    de Polymarket en t.
+  - Quién pierde: aficionados que compran a su equipo en Polymarket por encima del precio
+    de un mercado profesional.
+  - Limitación: hora exacta de recogida de PSH desconocida (suele ser viernes/martes);
+    estrategia real necesitaría cuotas vivas (forward, G7).
+  - Aclaración pre-G2: "comprar el resultado" incluye YES (gana X) y NO (no gana X) del
+    mercado "Will X win on D?"; prob. justa del NO = 1 − prob. justa del YES.
+- G1 (reports/h005_g1.md): 10,889 candidatos, 10,083 emparejados con resolución limpia,
+  0 discrepancias PM vs resultado real tras alias/umbral (los ajustes usaron solo la
+  coherencia de resolución, nunca precios). endDate = kickoff (mediana 0 h). G1 superado.
+- G2 (reports/h005_g2.md): 72 apuestas, PnL −7.3 c (IC −16.0…+2.1); Brier PM 0.1959 vs PS 0.1967.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H005_polymarket_vs_pinnacle.md | Variantes: 1
