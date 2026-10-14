@@ -25,23 +25,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     obsoletas tras noticias.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H004 — Deriva cerca de la resolución (decaimiento temporal)
-- Fuente: dinámica temporal.
-- Racional: mercados casi decididos cotizan con descuento por coste de capital y
-  riesgo de resolución; ¿es el descuento mayor que el riesgo real?
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos de este test):
-  - Universo: muestra h001 ∪ h006r, entrenamiento (closedTime < 2026-04-12), incl. anulados.
-  - t = endDate − h (programado; nunca closedTime). Abierto en t. h ∈ {6h (principal), 1h}.
-  - Lado favorito por prices-history en t: p ≥ 0.95 → YES; p ≤ 0.05 → NO.
-  - Entrada = peor compra taker real del token favorito en (t−1h, t] (Data API); si no hay
-    o si el precio real < 0.95 o ≥ 0.995 → no se opera.
-  - Comisión vigente (rate del mercado o 0.07). PnL por acción = pago − precio − comisión;
-    retorno anualizado por (closedTime − t).
-  - Predicción falsable: PnL medio > 0 con IC95% cluster > 0, y sobrevive a quitar los
-    5 mejores eventos. Se reportan las pérdidas de cola (favorito que pierde) por categoría.
-  - Quién pierde: vendedores impacientes del favorito (liquidez, coste de capital).
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
 - Estado: pendiente (baja prioridad) | Gate: — | Variantes: 0
@@ -51,6 +34,20 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   The Odds API, plan gratuito limitado). Solo forward/paper trading. Baja prioridad:
   H005 mostró que PM ya es tan preciso como Pinnacle pre-partido.
 - Estado: pendiente | Gate: — | Variantes: 0
+
+### H010 — Incoherencias entre fechas ("¿X antes de D1?" vs "¿X antes de D2?")
+- Fuente: inconsistencias internas. En un evento con varias fechas límite, P(antes de D1)
+  ≤ P(antes de D2) si D1 < D2. Violaciones ejecutables (ask D2 < bid D1 tras costes) son
+  arbitraje. Medición forward con libros vivos (como H002) y retro con trades.
+- Estado: pendiente | Gate: — | Variantes: 0
+
+### H011 — Mercados cripto "Up or Down" de corto plazo vs precio spot (Binance)
+- Fuente: fuentes externas / dinámica temporal. Miles de mercados diarios (5 min, 15 min,
+  1 h) sobre BTC/ETH. Con klines gratuitos de Binance se puede estimar la prob. justa
+  (movimiento browniano con vol realizada) en cada instante y compararla con el precio
+  ejecutable de PM. Quién pierde: minoristas que apuestan a dirección con precio lento.
+  Riesgo: latencia (los bots ya arbitran) y comisión cripto 0.07.
+- Estado: pendiente (prioridad alta: datos gratis, n enorme) | Gate: — | Variantes: 0
 
 ## Cerradas
 
@@ -187,3 +184,21 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     eventos distintos copiados. Variantes previstas: solo esta (k=50, retraso 60s).
 - G2 (reports/h008_g2.md): copia −3.36 c (IC −4.79…−1.95); wallets a su precio +1.82 c (IC −0.23…+4.05).
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H008_copiar_wallets.md | Variantes: 1
+
+### H004 — Deriva cerca de la resolución (decaimiento temporal)
+- Fuente: dinámica temporal.
+- Racional: mercados casi decididos cotizan con descuento por coste de capital y
+  riesgo de resolución; ¿es el descuento mayor que el riesgo real?
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos de este test):
+  - Universo: muestra h001 ∪ h006r, entrenamiento (closedTime < 2026-04-12), incl. anulados.
+  - t = endDate − h (programado; nunca closedTime). Abierto en t. h ∈ {6h (principal), 1h}.
+  - Lado favorito por prices-history en t: p ≥ 0.95 → YES; p ≤ 0.05 → NO.
+  - Entrada = peor compra taker real del token favorito en (t−1h, t] (Data API); si no hay
+    o si el precio real < 0.95 o ≥ 0.995 → no se opera.
+  - Comisión vigente (rate del mercado o 0.07). PnL por acción = pago − precio − comisión;
+    retorno anualizado por (closedTime − t).
+  - Predicción falsable: PnL medio > 0 con IC95% cluster > 0, y sobrevive a quitar los
+    5 mejores eventos. Se reportan las pérdidas de cola (favorito que pierde) por categoría.
+  - Quién pierde: vendedores impacientes del favorito (liquidez, coste de capital).
+- G2 (reports/h004_g2.md): 6h −0.43 c (IC −0.93…+0.05); 1h −1.08 c (IC −1.66…−0.53).
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H004_favoritos_cerca_cierre.md | Variantes: 2
