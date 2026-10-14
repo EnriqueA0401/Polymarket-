@@ -100,8 +100,19 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Estado: activa (forward) | Gate: G0 | Variantes: 0
 
 ### H035 — Ventana de disputa UMA (comprar el lado propuesto durante la disputa)
-- Fuente: subagente (3,377 mercados disputados, 1,804 eventos). Requiere logs on-chain del
-  Optimistic Oracle (Polygon). Prior 10%, coste medio. Estado: pendiente | Variantes: 0
+- Fuente: subagente (3,377 mercados disputados, 1,804 eventos).
+- Racional: tras una disputa, el lado propuesto puede quedar infravalorado por pánico o por
+  aversión a la incertidumbre de reglas. Pierde quien vende durante la disputa.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados de entrenamiento con disputa (umaResolutionStatuses contiene
+    "disputed"). Hora de disputa y precio propuesto desde logs on-chain del Optimistic Oracle
+    (Polygon; eventos DisputePrice/ProposePrice). Sin hora de disputa fiable → inviable.
+  - t = hora de la (primera) disputa + 30 min. Lado = el propuesto originalmente.
+  - Entrada = peor compra taker real de ese lado en (t, t+2 h]; solo si precio ≤ 0.95.
+  - Hasta resolución; comisión vigente; clusters = evento.
+  - Predicción: PnL > 0 con IC95% > 0 y ≥ 150 eventos; reportar tasa de reversión
+    (resolución ≠ propuesta) y rentabilidad de cartera.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H036 — Conversión NO→YES instantánea en negRisk (re-especificación de H002-B)
 - Fuente: subagente. Si Σ bids YES de los otros resultados > precio de NO de uno + costes,
