@@ -9,20 +9,16 @@
 ## Hipótesis activa
 - H002 — snapshots negRisk: `experiments/run_h002.sh` (evaluar ~2026-10-20).
 - H010 — escaleras de fechas: `experiments/run_h010.sh` (evaluar ~2026-10-21).
-  (Relanzados 2026-10-14 10:41 tras hueco 06:19–10:41 por reinicio.)
-- H024 RECHAZADA en G4/G5 tras red team (anualizado de cartera 6.6%; censura; costes×2).
-  Sesgo real pero no explotable. Subgrupo post hoc → H026 (solo forward).
-- H014 (temperatura vs Open-Meteo): subagente en curso (WIP subido).
-- H020 RECHAZADA (ambas variantes pierden; n<150). H025 RECHAZADA (favoritos 90d: +1.8 c, IC incluye 0, n=124).
+- Meta-revisión nº2 (reports/meta_review.md): sin borde explotable con datos públicos y
+  latencia de minutos tras 17 hipótesis cerradas. Quedan forward: H002, H010, H026.
 
 ## Siguiente paso exacto
 1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
-2. Considerar H026 como paper trading forward (barato: snapshots diarios de mercados largos).
-3. Integrar H014 cuando termine (revisar código/tests, informes, findings).
-4. Cola restante: H019 (UMA, baja prioridad), H021 (combinatorio, coste alto), H023 (lead-lag
-   Kalshi, prior bajo), H007/H009 (solo forward). Si fallan H014/H020/H024 → meta-revisión
-   anticipada sobre si existe borde con datos públicos y latencia de minutos.
-5. ~2026-10-20: evaluar H002; ~2026-10-21: H010.
+2. H026: escribir G0 de paper trading forward (mercados NO negRisk, duración ≥120 d, YES
+   0.02–0.10 a ~90 d: registrar señales diarias con precio ejecutable del libro; rentabilidad
+   de cartera; criterio G7: ≥ 50 mercados resueltos o 4 semanas — resolución tarda ~90 d,
+   así que es un test de largo plazo).
+3. ~2026-10-20: evaluar H002; ~2026-10-21: H010. Si fallan → informe final negativo.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
@@ -33,4 +29,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 25 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1). Cerradas: 16 (+H022 descartada sin prueba).
+- 26 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1). Cerradas: 17 (+H022 descartada sin prueba).

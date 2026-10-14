@@ -52,25 +52,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Quién pierde: quien compra la fecha corta (o vende la larga) sin mirar la escalera.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H014 — Mercados de temperatura máxima diaria vs pronóstico meteorológico
-- Fuente: fuentes externas (modelos de pronóstico). Mercados "highest temperature in
-  <ciudad> be <N>° on <fecha>" (eventos negRisk por tramos), muy minoristas.
-- Racional: el pronóstico numérico a 1 día es muy informativo; si el precio de los tramos
-  no lo refleja, hay borde. Pierden minoristas que apuestan por intuición.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: mercados binarios de temperatura máxima diaria (tramos exactos, "o más",
-    "o menos"), entrenamiento (closedTime < 2026-04-12).
-  - Pronóstico: Open-Meteo Previous Runs API, temperature_2m_max con lead de 1 día
-    (previous_day1) en las coordenadas de la ciudad → emitido ≥ 1 día antes (sin lookahead).
-  - Observado = tramo que resolvió YES en el evento.
-  - Modelo de error: normal por ciudad (media y sd de observado − pronóstico) estimado en la
-    PRIMERA mitad temporal del entrenamiento; evaluación solo en la SEGUNDA mitad.
-  - Prob. del tramo según su semántica (redondeo al entero; ≥N; ≤N).
-  - t = 12:00 UTC del día anterior a la fecha objetivo. Precio = peor compra taker real en
-    (t−1h, t]. Señal: prob − precio − comisión ≥ 0.05 (YES o NO).
-  - Predicción falsable: PnL > 0 con IC95% cluster (ciudad-fecha) > 0. Variantes: 1.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H019 — Ventana de propuesta UMA (comprar el lado propuesto antes del settle)
 - Fuente: subagente; generaliza H015. Requiere eventos ProposePrice on-chain (Polygon).
   Prior rebajado: H015 mostró que tras el evento el precio ya está ≥0.995 casi siempre.
@@ -467,3 +448,23 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Red team (reports/h024_redteam.md): anualización de cartera 6.6%; sin censura +1.18 c (IC −0.27…+2.57);
   costes×2 +0.71 c (IC incluye 0); p=0.039 vs 0.002 corregido.
 - Estado: RECHAZADA | Gate: falla G4/G5 | Motivo: findings/H024_carry_no_holdout.md | Variantes: 1
+
+### H014 — Mercados de temperatura máxima diaria vs pronóstico meteorológico
+- Fuente: fuentes externas (modelos de pronóstico). Mercados "highest temperature in
+  <ciudad> be <N>° on <fecha>" (eventos negRisk por tramos), muy minoristas.
+- Racional: el pronóstico numérico a 1 día es muy informativo; si el precio de los tramos
+  no lo refleja, hay borde. Pierden minoristas que apuestan por intuición.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios de temperatura máxima diaria (tramos exactos, "o más",
+    "o menos"), entrenamiento (closedTime < 2026-04-12).
+  - Pronóstico: Open-Meteo Previous Runs API, temperature_2m_max con lead de 1 día
+    (previous_day1) en las coordenadas de la ciudad → emitido ≥ 1 día antes (sin lookahead).
+  - Observado = tramo que resolvió YES en el evento.
+  - Modelo de error: normal por ciudad (media y sd de observado − pronóstico) estimado en la
+    PRIMERA mitad temporal del entrenamiento; evaluación solo en la SEGUNDA mitad.
+  - Prob. del tramo según su semántica (redondeo al entero; ≥N; ≤N).
+  - t = 12:00 UTC del día anterior a la fecha objetivo. Precio = peor compra taker real en
+    (t−1h, t]. Señal: prob − precio − comisión ≥ 0.05 (YES o NO).
+  - Predicción falsable: PnL > 0 con IC95% cluster (ciudad-fecha) > 0. Variantes: 1.
+- G2 (reports/h014_g2.md): 1,370 apuestas, PnL −1.86 c (IC −3.76…+0.02); Brier modelo 0.124 vs PM 0.105.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H014_temperatura_pronostico.md | Variantes: 1

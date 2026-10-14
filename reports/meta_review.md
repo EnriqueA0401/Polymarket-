@@ -48,3 +48,33 @@ Dejar de buscar sesgos en el precio de PM y concentrarse en:
 Criterio de parada de la familia: si H014, H016 y H017 fallan, la próxima meta-revisión debe
 plantear que no existe borde explotable para < 1,000 USD con datos públicos y latencia de
 minutos, y documentarlo como resultado principal.
+
+---
+
+# Meta-revisión nº 2 (2026-10-14, anticipada por la regla de parada; 17 cerradas, 26 pruebas)
+
+Se cumplió la condición de la nº 1: fallaron H014 (meteorología), H016 (barreras cripto) y
+H017/H024 (carry a largo plazo), además de H015, H018, H020, H025.
+
+## Conclusión principal (resultado negativo documentado)
+Con datos públicos gratuitos, latencia de minutos y precios realmente ejecutables, NO se ha
+encontrado un borde explotable para < 1,000 USD en Polymarket. Patrones repetidos:
+- El precio de PM bate a modelos externos razonables (Pinnacle, Binance, Open-Meteo,
+  opciones/volatilidad): Brier del mercado ≤ Brier del modelo en H005, H011, H014, H016.
+- Los sesgos que existen (favorito-longshot a 24h–90d, ~1–2 c/acción) quedan dentro del spread,
+  los anula la selección adversa o rinden por debajo del tipo libre de riesgo (H001, H006, H017/H024).
+- Lo "post-evento" y las ventanas de apertura ya las cierran bots (H015, H020).
+- Los resultados aparentes desaparecen con métricas correctas (anualización de cartera,
+  censura, precios ejecutables).
+
+## Qué queda con prior razonable
+1. Medición forward en curso: H002 (negRisk) y H010 (escaleras de fechas) — arbitraje puro.
+2. Forward/paper trading de subgrupos post hoc (H026) — solo como G7, sin holdout disponible.
+3. Familias no probadas y caras: arbitraje combinatorio (H021), lead-lag Kalshi (H023),
+   UMA (H019, prior rebajado). Requieren infraestructura o latencia fuera de alcance.
+
+## Recomendación
+- Mantener H002/H010 hasta su evaluación (20–21/10) y lanzar H026 en paper trading barato.
+- No abrir más hipótesis de calibración ni de "modelo externo vs precio" sin una fuente de
+  información claramente privilegiada (no pública o más lenta de incorporar).
+- Si H002, H010 y H026 fallan, cerrar el proyecto con el informe final de resultado negativo.
