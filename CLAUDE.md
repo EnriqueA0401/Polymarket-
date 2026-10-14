@@ -154,3 +154,15 @@ investigando.
 # INFORME DE CADA SESIÓN
 Termina cada sesión con 5 líneas como máximo en journal/: qué hiciste, qué aprendiste,
 el estado de la hipótesis activa y el siguiente paso.
+
+# AMPLIACIÓN DEL ALCANCE: OPCIONES BINARIAS (añadido por el usuario, 2026-10-14)
+Mismas premisas, gates, protocolo de revisión y anti-sobreajuste que para Polymarket. Se amplía
+el universo de estudio a opciones binarias / contratos de evento:
+- Bolsas reguladas de contratos binarios: Kalshi (API pública con historial de mercados y
+  trades), Nadex / Crypto.com Derivatives North America (si hay datos accesibles).
+- Comparación entre plataformas del mismo evento (Kalshi ↔ Polymarket).
+- Opciones binarias de brokers de pago fijo (p. ej. 80–90%): solo como análisis de valor
+  esperado frente a la predictibilidad del subyacente con datos reales (p. ej. Binance).
+G6 añade un requisito: disponibilidad legal para el usuario (jurisdicción) y riesgo de
+contraparte (bróker no regulado = descartado). Prohibido operar dinero real igual que antes.
+Los IDs de hipótesis siguen la misma numeración global en HYPOTHESES.md (prefijo "[BIN]").
