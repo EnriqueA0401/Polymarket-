@@ -7,16 +7,19 @@
   datos públicos; takers pagan spread, makers sufren selección adversa.
 
 ## Hipótesis activa
-- H002 — snapshots con `experiments/run_h002.sh` → data/h002/opps.csv.
-- Segunda: H010 (incoherencias entre fechas "antes de D1" vs "antes de D2").
+- H002 — snapshots negRisk cada ~38 min: `experiments/run_h002.sh` → data/h002/opps.csv.
+- H010 — escaleras de fechas, snapshots horarios desde 2026-10-14 04:55 UTC:
+  `experiments/run_h010.sh` → data/h010/opps.csv. Piloto: 1,775 pares, 0 positivos.
 
 ## Siguiente paso exacto
-1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
-   `nohup experiments/run_h002.sh &`.
-2. Escribir G0 de H010 y añadir su medición a los snapshots (eventos con varias fechas
-   límite; condición: bid(D1) > ask(D2) + costes con D1 < D2). Reutilizar libros de H002
-   si el evento es negRisk; si no, snapshot propio.
-3. ~2026-10-20: evaluar H002 con la predicción G0.
+1. Comprobar que ambos bucles siguen vivos (`tail -1 data/h002.log data/h010.log`); si no,
+   relanzar con `nohup experiments/run_h002.sh &` y `nohup experiments/run_h010.sh &`
+   (los reinicios del contenedor los matan).
+2. Mientras miden: proponer nuevas hipótesis (cola casi vacía): p.ej. H012 reacción a
+   noticias en mercados políticos (sobre/infrarreacción tras saltos ≥10 c, con trades
+   reales), H013 programa de recompensas de liquidez (¿rewards > selección adversa?).
+   Escribir G0 de la más barata.
+3. ~2026-10-20: evaluar H002; ~2026-10-21: evaluar H010 (predicciones G0).
 4. Tras 10 hipótesis cerradas (van 7): reports/meta_review.md.
 
 ## Bloqueos / limitaciones
