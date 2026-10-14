@@ -106,6 +106,16 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     explotable frente al coste de capital.
 - Estado: activa | Gate: G3 (holdout) pendiente | Variantes: 0
 
+### H025 — Favoritos a largo plazo (YES en 0.90–0.98 a 90 días)
+- Fuente: simétrico de H017 (no se miró este lado en H017).
+- Racional: si a largo plazo los longshots están sobrevalorados, los favoritos pueden estar
+  infravalorados (aversión a inmovilizar capital en "casi seguros").
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos de este lado):
+  - Mismo universo, t, fuentes y ventana que H017 (entrenamiento, duración ≥120 d, t=end−90d).
+  - Señal 0.90 ≤ p_t ≤ 0.98 → comprar YES al peor precio real de compra de YES en (t−3d, t].
+  - Mismo criterio: anualizado medio > 6% con IC95% inferior > 4%; y PnL por acción IC > 0.
+- Estado: activa | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot

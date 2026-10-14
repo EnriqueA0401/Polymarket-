@@ -11,6 +11,7 @@ from pmq.universe import DATA
 
 H = pd.Timedelta("90D")
 HOLD = len(sys.argv) > 1 and sys.argv[1] == "holdout"
+FAV = len(sys.argv) > 1 and sys.argv[1] == "fav"          # H025: lado favorito (YES 0.90–0.98)
 if HOLD and os.path.exists(os.path.join(ROOT, "reports", "h024_g3.md")):
     sys.exit("El holdout de H024 ya se usó: no se repite (CLAUDE.md G3).")
 u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"),
@@ -37,15 +38,16 @@ def daily(tok):
 with ThreadPoolExecutor(6) as ex:
     hs = list(ex.map(daily, t.token_yes))
 t["p"] = [h001.price_at(h or [], tt.timestamp(), 3 * 86400) if h else None for h, tt in zip(hs, t.t)]
-s = t[t.p.notna() & (t.p >= 0.02) & (t.p <= 0.10)].copy()
+s = (t[t.p.notna() & (t.p >= 0.90) & (t.p <= 0.98)] if FAV else t[t.p.notna() & (t.p >= 0.02) & (t.p <= 0.10)]).copy()
+IDX = 0 if FAV else 1
 s["t1"] = [int(x.timestamp()) for x in s.t]
 with ThreadPoolExecutor(6) as ex:
     res = list(ex.map(lambda r: trades.fetch(r[0], r[1] - 3 * 86400, r[1], os.path.join(DATA, "trades_h017")),
                       zip(s.condition_id, s.t1)))
-s["px"] = [h005.exec_price(r, 1, a - 3 * 86400, a) for r, a in zip(res, s.t1)]
+s["px"] = [h005.exec_price(r, IDX, a - 3 * 86400, a) for r, a in zip(res, s.t1)]
 b = s[s.px.notna() & (s.px < 0.999)].copy()
 b["rate"] = [h001.fee_rate(x) for x in b.fee_schedule]
-b["pnl"] = (1 - b.y) - b.px - b.rate * b.px * (1 - b.px)
+b["pnl"] = (b.y if FAV else 1 - b.y) - b.px - b.rate * b.px * (1 - b.px)
 b["days"] = ((b.closed_time - b.t).dt.total_seconds() / 86400).clip(lower=1)
 b["ann"] = (b.pnl / b.px) * 365 / b.days                      # anualización simple
 lo, hi = h001.cluster_bootstrap(b, col="ann") if len(b) > 5 else (np.nan, np.nan)
@@ -62,7 +64,7 @@ if HOLD:
     lo2, hi2 = h001.cluster_bootstrap(b, col="ann_hr") if len(b) > 5 else (np.nan, np.nan)
 plo, phi_ = h001.cluster_bootstrap(b, col="pnl") if len(b) > 5 else (np.nan, np.nan)
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
-L = [("# H024 G3 — HOLDOUT (una sola ejecución): carry en NO a 90 días + holding rewards" if HOLD
+L = [("# H025 G2 — favoritos YES 0.90–0.98 a 90 días (entrenamiento)" if FAV else None) or ("# H024 G3 — HOLDOUT (una sola ejecución): carry en NO a 90 días + holding rewards" if HOLD
       else "# H017 G2 — carry en NO a 90 días (entrenamiento)"), "", f"- commit {commit}",
      f"- elegibles {len(t):,}; con precio diario en t {t.p.notna().sum():,}; señal 0.02–0.10: {len(s):,}; "
      f"con compra real de NO en (t−3d, t]: {len(b):,} ({b.event_id.nunique():,} eventos)",
@@ -75,5 +77,5 @@ L = [("# H024 G3 — HOLDOUT (una sola ejecución): carry en NO a 90 días + hol
         f"- H024 (a) PnL>0 e IC>0: {'SÍ' if plo > 0 else 'NO'}; (b) anualizado con HR >6% e IC inf >4%: "
         f"{'SÍ' if (b.ann_hr.mean() > .06 and lo2 > .04) else 'NO'}"] if HOLD else []),
      "", "## Por categoría", "", b.groupby(b.category.fillna("NA")).agg(n=("pnl", "size"), pnl=("pnl", "mean"), ann=("ann", "mean")).round(4).to_markdown()]
-open(os.path.join(ROOT, "reports", "h024_g3.md" if HOLD else "h017_g2.md"), "w").write("\n".join(L) + "\n")
+open(os.path.join(ROOT, "reports", "h025_g2.md" if FAV else "h024_g3.md" if HOLD else "h017_g2.md"), "w").write("\n".join(L) + "\n")
 print("\n".join(L[:7]))
