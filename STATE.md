@@ -7,6 +7,9 @@
   datos públicos; takers pagan spread, makers sufren selección adversa.
 
 ## Hipótesis activa
+- ALCANCE AMPLIADO (usuario, 14/10): opciones binarias (ver CLAUDE.md). En curso: H038 [BIN]
+  calibración Kalshi (subagente), H039 [BIN] arbitraje Kalshi↔PM (subagente), H040 [BIN]
+  binarias de bróker vs predictibilidad a 5 min (experiments/h040_g2.py).
 - H002 — snapshots negRisk (evaluar ~2026-10-20).
 - H010 — escaleras de fechas (evaluar ~2026-10-21).
 - H026 — paper trading carry NO a ~90 d en mercados NO negRisk: registro cada 6 h desde
