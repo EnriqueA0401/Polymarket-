@@ -1,7 +1,7 @@
 # STATE
 
 ## Qué se está haciendo
-- Cerradas (rechazadas): H001, H003, H004, H005, H006, H008, H011. H002 activa (forward
+- Cerradas (rechazadas): H001, H003, H004, H005, H006, H008, H011, H012. H002 activa (forward
   negRisk hasta ~2026-10-20).
 - Patrón: con precios ejecutables PM está bien calibrado y es más rápido que modelos con
   datos públicos; takers pagan spread, makers sufren selección adversa.
@@ -15,10 +15,12 @@
 1. Comprobar que ambos bucles siguen vivos (`tail -1 data/h002.log data/h010.log`); si no,
    relanzar con `nohup experiments/run_h002.sh &` y `nohup experiments/run_h010.sh &`
    (los reinicios del contenedor los matan).
-2. H012 (G0 escrito): `python experiments/h012_g2.py` → reports/h012_g2.md (en curso
-   desde 05:00 UTC 14/10). Luego: H013 recompensas de liquidez (¿rewards > selección adversa?).
+2. H012 rechazada. Siguiente: G0 de H013 (programa de recompensas de liquidez: ¿las
+   recompensas diarias compensan la selección adversa de un maker pequeño?). Datos:
+   rewards por mercado (CLOB /rewards o Gamma rewardsMinSize/MaxSpread) + fills
+   pesimistas con trades como en H006.
 3. ~2026-10-20: evaluar H002; ~2026-10-21: evaluar H010 (predicciones G0).
-4. Tras 10 hipótesis cerradas (van 7): reports/meta_review.md.
+4. Tras 10 hipótesis cerradas (van 8): reports/meta_review.md.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
@@ -29,4 +31,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 14 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1). Cerradas: 7.
+- 16 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2). Cerradas: 8.
