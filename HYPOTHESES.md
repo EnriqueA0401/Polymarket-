@@ -110,8 +110,16 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
-- Fuente: subagente (guías sin backtest). Test barato: calibración solo en esta categoría con
-  peores precios reales. Estado: pendiente | Variantes: 0
+- Fuente: subagente (guías: el YES está sobrevalorado frente a la tasa base). 10,321
+  mercados de entrenamiento (pregunta con "say"/"mention").
+- Protocolo G0 (fijado 2026-10-14, antes de ver precios o resultados de esta categoría):
+  - Universo: mercados de entrenamiento cuya pregunta contiene "say" o "mention".
+  - t = endDate − 2h (antes del evento típico). Comprar NO al peor precio real de compra de
+    NO en (t−2h, t] si el precio YES implícito (1 − precio NO) está en [0.20, 0.80].
+  - PnL = pago − precio − comisión; clusters = evento (mismo discurso).
+  - Predicción falsable: PnL > 0 con IC95% > 0, y se mantiene sin top-5 eventos. Variantes: 1.
+  - Quién pierde: compradores de YES que sobreestiman la probabilidad de una palabra concreta.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H019 — Ventana de propuesta UMA (comprar el lado propuesto antes del settle)
 - Fuente: subagente; generaliza H015. Requiere eventos ProposePrice on-chain (Polygon).
