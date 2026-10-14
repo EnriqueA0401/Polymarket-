@@ -94,6 +94,40 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     rentabilidad de cartera > 6%/año. Horizonte: ~3–4 meses (resolución a ~90 d).
 - Estado: activa (forward, registro diario) | Gate: G7 | Variantes: 0
 
+### H027 — Temperatura máxima del MISMO día con observaciones METAR (nowcast)
+- Fuente: subagente de investigación (IEM ASOS/METAR global, con hora de observación).
+- Racional: a media tarde el máximo acumulado ya descarta tramos y casi decide otros; si el
+  precio tarda en reflejarlo, hay borde. Pierden minoristas que mantienen tramos muertos.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos de METAR o precios a esas horas):
+  - Universo: mercados de temperatura máxima de H014 (entrenamiento, < 2026-04-12).
+  - G1: máximo diario METAR de la estación de resolución vs tramo resuelto; ciudades con
+    concordancia < 95% se excluyen.
+  - t = 15:00 hora local de la estación en el día objetivo. Información: observaciones METAR
+    con hora ≤ t − 15 min. M = máximo acumulado del día local hasta entonces.
+  - Modelo: distribución empírica por ciudad de (máximo final − máximo acumulado a las 15:00),
+    estimada en la PRIMERA mitad temporal del entrenamiento; prueba en la SEGUNDA mitad.
+  - Precio = peor compra taker real en (t, t+10 min]. Señal: prob − precio − comisión ≥ 0.05.
+  - Predicción: PnL > 0 con IC95% cluster (ciudad-fecha) > 0; Brier modelo < Brier precio.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H028 — "¿Batirá X sus beneficios trimestrales?" vs historial de batidas
+- Fuente: subagente (FactSet: tasa de batida S&P 500 ~76% a 10 años; 682 mercados).
+- Racional: el historial de batidas de cada empresa es público antes del informe; si el
+  mercado trata el evento como ~50/50, hay borde. Pierden quienes ignoran la tasa base.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios de entrenamiento con pregunta de "beat earnings" (o similar).
+  - Prob. = (k + 0.76·4)/(n + 4), con k batidas en los últimos n ≤ 8 trimestres anteriores al
+    informe (solo informes con fecha < t).
+  - t = 24 h antes de la hora del informe (o de endDate si no consta). Precio = peor compra
+    taker real en (t−23 h, t]. Señal: prob − precio − comisión ≥ 0.05 (YES o NO).
+  - Clusters = fecha de informe. Predicción: PnL > 0 con IC95% > 0 y ≥ 150 mercados.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H029–H032 — Solo forward (menos de 150 eventos en entrenamiento)
+- H029 TSA pasajeros diarios (modelo estacional); H030 Netflix top 10 semanal con rankings
+  diarios; H031 taquilla de estreno con preestrenos; H032 número de tuits con XTracker.
+- Estado: pendientes (forward cuando haya capacidad) | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
