@@ -40,3 +40,14 @@ def test_safe_a_requiere_inactivos_resueltos_no():
     assert h002.analyse(ok, books, ts)["safe_a"] is True
     assert h002.analyse(bad, books, ts)["safe_a"] is False
     assert h002.analyse(aug, books, ts)["safe_a"] is False
+
+
+def test_conversion_no_a_yes():
+    ms = [{"acceptingOrders": True, "closed": False, "clobTokenIds": f'["y{i}", "n{i}"]', "feesEnabled": False}
+          for i in range(3)]
+    ev = {"id": "e", "markets": ms}
+    bids = lambda p: {"bids": [{"price": str(p), "size": "1000"}]}
+    books = {"y0": bids(0.45), "y1": bids(0.40), "y2": bids(0.30), "n0": bk((0.62, 1000)), "n1": bk((0.67, 1000)), "n2": bk((0.75, 1000))}
+    r = h002.conversion(ev, books, pd.Timestamp("2030-01-01", tz="UTC"))
+    # i=2: vender YES0+YES1 = 0.85·50 = 42.5, comprar NO2 = 37.5 → +5.0
+    assert r["best_i"] == 2 and r["profit_50"] == pytest.approx(5.0)

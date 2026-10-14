@@ -130,7 +130,11 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Protocolo: sobre los libros crudos ya guardados de H002 (data/h002/snap_*), calcular para
   cada evento y resultado i: ingreso = Σ_{j≠i} (venta de 50 YES_j barriendo bids) − coste de
   50 NO_i barriendo asks − comisiones. Predicción: ≥ 5 eventos/semana con beneficio ≥ 1 USD
-  por 50 acciones. Medición limitada a los snapshots existentes (no hay historial completo).
+  por 50 acciones.
+  - ENMIENDA (antes de ver datos): los crudos de H002 solo contienen eventos con algún retorno
+    > 0 (subconjunto sesgado) → medición FORWARD integrada en los snapshots de H002 desde
+    2026-10-14 (data/h002/opps_conv.csv), solo eventos no aumentados con todos los mercados
+    activos. Evaluar junto a H002 (~2026-10-21).
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ### H037 — Monotonía en escaleras de strikes ("above/reach K", mismo endDate)

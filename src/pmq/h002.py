@@ -79,6 +79,44 @@ def buy_cost(book, shares, rate):
     return np.nan
 
 
+def sell_value(book, shares, rate):
+    """Ingreso neto (precio − comisión taker) de vender `shares` barriendo bids. NaN si no hay profundidad."""
+    if not book or not book.get("bids"):
+        return np.nan
+    bids = sorted(((float(b["price"]), float(b["size"])) for b in book["bids"]), reverse=True)
+    left, val = shares, 0.0
+    for px, sz in bids:
+        take = min(sz, left)
+        val += take * px - rate * take * px * (1 - px)
+        left -= take
+        if left <= 1e-9:
+            return val
+    return np.nan
+
+
+def conversion(ev, bk, ts, s=50):
+    """H036: comprar s NO_i, convertir en s YES de cada j≠i (adapter negRisk) y venderlos al instante.
+    Solo eventos no aumentados con todos los mercados activos (conversión limpia). Mejor i."""
+    allm = ev.get("markets") or []
+    ms = [m for m in allm if m.get("acceptingOrders") and not m.get("closed")]
+    if len(ms) < 3 or len(ms) != len(allm) or ev.get("negRiskAugmented"):
+        return None
+    toks = [json.loads(m["clobTokenIds"]) for m in ms]
+    rates = [fee_rate(m) for m in ms]
+    sells = [sell_value(bk.get(t[0]), s, r) for t, r in zip(toks, rates)]
+    best = None
+    for i, (t, r) in enumerate(zip(toks, rates)):
+        cost = buy_cost(bk.get(t[1]), s, r)
+        rev = sum(v for j, v in enumerate(sells) if j != i)
+        prof = rev - cost
+        if np.isfinite(prof) and (best is None or prof > best[1]):
+            best = (i, prof)
+    if best is None:
+        return None
+    return {"ts": ts.isoformat(), "event_id": ev["id"], "title": (ev.get("title") or "")[:80],
+            "n": len(ms), "best_i": best[0], "profit_50": best[1]}
+
+
 def analyse(ev, bk, ts):
     ms = [m for m in ev.get("markets") or [] if m.get("acceptingOrders") and not m.get("closed")]
     allm = ev.get("markets") or []
@@ -115,6 +153,11 @@ def snapshot():
     bk = books(tokens)
     rows = [r for r in (analyse(e, bk, ts) for e in evs) if r]
     df = pd.DataFrame(rows)
+    conv = pd.DataFrame([c for c in (conversion(e, bk, ts) for e in evs) if c])
+    if len(conv):
+        os.makedirs(OUT, exist_ok=True)
+        pc = os.path.join(OUT, "opps_conv.csv")
+        conv.to_csv(pc, mode="a", header=not os.path.exists(pc), index=False)
     # Solo se guardan crudos los eventos con algún retorno > 0 (auditoría sin llenar el disco)
     hit = set(df.loc[(df.filter(like="_ret_") > 0).any(axis=1), "event_id"]) if len(df) else set()
     os.makedirs(OUT, exist_ok=True)
