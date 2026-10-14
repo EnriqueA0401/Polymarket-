@@ -78,3 +78,29 @@ encontrado un borde explotable para < 1,000 USD en Polymarket. Patrones repetido
 - No abrir más hipótesis de calibración ni de "modelo externo vs precio" sin una fuente de
   información claramente privilegiada (no pública o más lenta de incorporar).
 - Si H002, H010 y H026 fallan, cerrar el proyecto con el informe final de resultado negativo.
+
+---
+
+# Meta-revisión nº 3 (2026-10-14, 20 cerradas, 29 pruebas)
+
+Desde la nº 2 se probaron 4 hipótesis de "información lenta o poco accesible", siguiendo su
+recomendación: H023 (Kalshi→PM), H027 (METAR mismo día), H028 (historial de batidas de
+beneficios) y, en curso, H032 (posts semanales con XTracker). Todas las cerradas fallan con el
+mismo patrón: el precio ejecutable de PM tiene mejor Brier que el modelo externo (H027 0.086 vs
+0.153; H028 0.157 vs 0.181) o el seguimiento es menor que el coste (H023 +0.5 c en 5 min).
+
+## Familias agotadas (acumulado)
+Calibración simple; dinámica de precio propia; flujo de wallets; modelos externos públicos
+(deportes, cripto, meteorología a 1 día y del mismo día, beneficios, Kalshi); post-evento;
+apertura; carry a largo plazo (sesgo real, rentabilidad < tipo libre de riesgo).
+
+## ¿Cambiar de enfoque?
+La evidencia acumulada (20 hipótesis, ~29 pruebas, holdout consumido solo por H024) apoya que
+el mercado es eficiente para un operador con datos públicos, latencia de minutos y < 1,000 USD.
+Lo único abierto con algún prior:
+1. Arbitraje puro medido en forward (H002, H010): evaluación 20–21/10.
+2. H026 (paper trading carry NO no-negRisk): resultados ~enero 2027.
+3. H032 (XTracker): en curso.
+4. H029–H031: solo forward, n insuficiente.
+Recomendación: completar 1–3; si fallan, emitir el informe final de resultado negativo
+(reports/FINAL_REPORT.md) y reducir la actividad a mantenimiento del paper trading.
