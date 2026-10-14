@@ -74,3 +74,11 @@ if __name__ == "__main__":
         if not a.loop:
             break
         time.sleep(a.loop * 60)
+
+
+def portfolio_return(pnl, capital, days):
+    """Rentabilidad anualizada de cartera: Σpnl / Σ(capital·días) · 365 (lección H024)."""
+    import numpy as np
+    pnl, capital, days = map(np.asarray, (pnl, capital, days))
+    den = (capital * days).sum()
+    return float(pnl.sum() / den * 365) if den > 0 else float("nan")

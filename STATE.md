@@ -16,8 +16,7 @@
 
 ## Siguiente paso exacto
 1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
-2. Escribir experiments/h026_eval.py (resolución vía Gamma por condition_id; PnL por acción;
-   cartera Σpnl/Σ(capital·días)·365; IC bootstrap por evento; solo eventos totalmente resueltos).
+2. Evaluación H026: `python experiments/h026_eval.py` → reports/h026_g7.md (útil cuando haya resoluciones).
 3. ~2026-10-20: evaluar H002; ~2026-10-21: H010. Si fallan y H026 no avanza → informe final.
 
 ## Bloqueos / limitaciones
