@@ -99,6 +99,44 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     ≥ 6% en algún snapshot, confirmados leyendo las reglas. Si no → rechazar.
 - Estado: activa (forward) | Gate: G0 | Variantes: 0
 
+### H034 — Props de esports "Game N" que se anulan a 50-50 tras decidirse la serie
+- Fuente: subagente (reglas verificadas: "If Game N is not played because the series result
+  has already been determined… 50-50"). 38.5k props Game 3 (47% anulados), Game 5 (74%).
+- Racional: cuando la serie ya está decidida antes del Game N, el prop vale exactamente 0.5; si
+  quedan órdenes en reposo lejos de 0.5 (cotizaciones mecánicas/olvidadas), comprarlas da
+  beneficio casi seguro. Pierden makers con órdenes desfasadas.
+- Protocolo G0 (fijado 2026-10-14, antes de ver precios o PnL):
+  - Universo: props "Game N"/"Map N" de esports con regla 50-50 en la descripción,
+    entrenamiento (closedTime < 2026-04-12), con su mercado de serie (ganador de la serie) en
+    el mismo evento.
+  - t_d = primer trade del mercado de serie con precio ≥ 0.99 (serie decidida; dato público).
+    Solo props con N = número máximo de partidas (Bo3→Game 3, Bo5→Game 5) y t_d anterior a
+    cualquier trade del prop con precio ≥ 0.99 o ≤ 0.01 (indicio de que la partida N no se
+    jugó). La identificación usa SOLO datos ≤ t.
+  - Entrada: en (t_d + 15 min, t_d + 6 h], cada trade taker real de compra (YES o NO) a precio
+    ≤ 0.5 − comisión − 0.03 se toma como ejecutable para nosotros al mismo precio (máx. 1 por
+    token). Pago real según resolución (0.5 si anulado).
+  - Clusters = serie. Predicción: PnL > 0 con IC95% > 0, ≥ 150 series, y tasa de anulación
+    observada ≥ 90% en las operaciones (si no, la identificación falla).
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H035 — Ventana de disputa UMA (comprar el lado propuesto durante la disputa)
+- Fuente: subagente (3,377 mercados disputados, 1,804 eventos). Requiere logs on-chain del
+  Optimistic Oracle (Polygon). Prior 10%, coste medio. Estado: pendiente | Variantes: 0
+
+### H036 — Conversión NO→YES instantánea en negRisk (re-especificación de H002-B)
+- Fuente: subagente. Si Σ bids YES de los otros resultados > precio de NO de uno + costes,
+  comprar NO, convertir (adapter) y vender YES al instante: sin capital bloqueado.
+- Protocolo: sobre los libros crudos ya guardados de H002 (data/h002/snap_*), calcular para
+  cada evento y resultado i: ingreso = Σ_{j≠i} (venta de 50 YES_j barriendo bids) − coste de
+  50 NO_i barriendo asks − comisiones. Predicción: ≥ 5 eventos/semana con beneficio ≥ 1 USD
+  por 50 acciones. Medición limitada a los snapshots existentes (no hay historial completo).
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H037 — Monotonía en escaleras de strikes ("above/reach K", mismo endDate)
+- Fuente: subagente. YES(K bajo) + NO(K alto) < 1 → arbitraje. Solo forward (extender h010).
+  Prior 5% (ventanas de segundos). Estado: pendiente | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
