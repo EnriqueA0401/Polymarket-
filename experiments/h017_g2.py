@@ -1,5 +1,6 @@
 """H017 G2 (entrenamiento): carry en NO de eventos improbables a 90 días.
-python experiments/h017_g2.py → reports/h017_g2.md"""
+python experiments/h017_g2.py → reports/h017_g2.md
+python experiments/h017_g2.py holdout → H024 G3 (UNA sola vez) → reports/h024_g3.md"""
 import os, subprocess, sys, time
 from concurrent.futures import ThreadPoolExecutor
 ROOT = os.path.join(os.path.dirname(__file__), "..")
@@ -9,11 +10,14 @@ from pmq import h001, h005, trades
 from pmq.universe import DATA
 
 H = pd.Timedelta("90D")
+HOLD = len(sys.argv) > 1 and sys.argv[1] == "holdout"
+if HOLD and os.path.exists(os.path.join(ROOT, "reports", "h024_g3.md")):
+    sys.exit("El holdout de H024 ya se usó: no se repite (CLAUDE.md G3).")
 u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"),
                     columns=["id", "condition_id", "token_yes", "event_id", "y", "start", "end", "closed_time",
                              "enable_ob", "fee_schedule", "category", "question"])
-t = u[(u.closed_time < h001.HOLDOUT_START) & u.enable_ob & (u.start <= u.end - pd.Timedelta("120D"))
-      & (u.closed_time > u.end - H)].copy()
+per = (u.closed_time >= h001.HOLDOUT_START) if HOLD else (u.closed_time < h001.HOLDOUT_START)
+t = u[per & u.enable_ob & (u.start <= u.end - pd.Timedelta("120D")) & (u.closed_time > u.end - H)].copy()
 t["t"] = t.end - H
 
 
@@ -45,15 +49,31 @@ b["pnl"] = (1 - b.y) - b.px - b.rate * b.px * (1 - b.px)
 b["days"] = ((b.closed_time - b.t).dt.total_seconds() / 86400).clip(lower=1)
 b["ann"] = (b.pnl / b.px) * 365 / b.days                      # anualización simple
 lo, hi = h001.cluster_bootstrap(b, col="ann") if len(b) > 5 else (np.nan, np.nan)
+if HOLD:
+    import glob, gzip, json
+    ids, hr = set(b.id), {}
+    for f in sorted(glob.glob(os.path.join(DATA, "gamma", "win_2026-*.jsonl.gz"))):
+        for l in gzip.open(f, "rt"):
+            m = json.loads(l)
+            if int(m["id"]) in ids:
+                hr[int(m["id"])] = bool(m.get("holdingRewardsEnabled"))
+    b["hold_rw"] = b.id.map(hr).fillna(False)
+    b["ann_hr"] = b.ann + np.where(b.hold_rw, 0.04, 0.0)
+    lo2, hi2 = h001.cluster_bootstrap(b, col="ann_hr") if len(b) > 5 else (np.nan, np.nan)
 plo, phi_ = h001.cluster_bootstrap(b, col="pnl") if len(b) > 5 else (np.nan, np.nan)
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
-L = ["# H017 G2 — carry en NO a 90 días (entrenamiento)", "", f"- commit {commit}",
+L = [("# H024 G3 — HOLDOUT (una sola ejecución): carry en NO a 90 días + holding rewards" if HOLD
+      else "# H017 G2 — carry en NO a 90 días (entrenamiento)"), "", f"- commit {commit}",
      f"- elegibles {len(t):,}; con precio diario en t {t.p.notna().sum():,}; señal 0.02–0.10: {len(s):,}; "
      f"con compra real de NO en (t−3d, t]: {len(b):,} ({b.event_id.nunique():,} eventos)",
      f"- PnL medio {b.pnl.mean()*100:.3f} c/acción (IC95% {plo*100:.3f} … {phi_*100:.3f}); precio medio NO {b.px.mean():.4f}; "
      f"YES ocurrió en {int((b.y == 1).sum())} ({(b.y == 1).mean():.1%}), anulados {int((b.y == 0.5).sum())}",
      f"- rendimiento anualizado medio {b.ann.mean():.2%} (IC95% cluster {lo:.2%} … {hi:.2%}); días medios {b.days.mean():.0f}",
      f"- criterio: media > 6% y IC inferior > 4% → {'CUMPLE' if (b.ann.mean() > .06 and lo > .04) else 'NO cumple'}",
+     *([f"- con holding reward (+4%/año si holdingRewardsEnabled; {int(b.hold_rw.sum())} de {len(b)} mercados): "
+        f"anualizado medio {b.ann_hr.mean():.2%} (IC95% {lo2:.2%} … {hi2:.2%})",
+        f"- H024 (a) PnL>0 e IC>0: {'SÍ' if plo > 0 else 'NO'}; (b) anualizado con HR >6% e IC inf >4%: "
+        f"{'SÍ' if (b.ann_hr.mean() > .06 and lo2 > .04) else 'NO'}"] if HOLD else []),
      "", "## Por categoría", "", b.groupby(b.category.fillna("NA")).agg(n=("pnl", "size"), pnl=("pnl", "mean"), ann=("ann", "mean")).round(4).to_markdown()]
-open(os.path.join(ROOT, "reports", "h017_g2.md"), "w").write("\n".join(L) + "\n")
+open(os.path.join(ROOT, "reports", "h024_g3.md" if HOLD else "h017_g2.md"), "w").write("\n".join(L) + "\n")
 print("\n".join(L[:7]))
