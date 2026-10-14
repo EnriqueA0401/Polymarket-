@@ -19,7 +19,7 @@
 1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
 2. Integrar resultados de H014 (revisar código, tests, informe; commit) y H015.
 3. Añadir a HYPOTHESES.md las mejores ideas del subagente de investigación (G0 antes de datos).
-4. Van 10 cerradas → escribir reports/meta_review.md (AHORA).
+4. Meta-revisión nº1 hecha (reports/meta_review.md). Próxima tras 20 cerradas.
 5. ~2026-10-20: evaluar H002; ~2026-10-21: H010.
 
 ## Bloqueos / limitaciones
