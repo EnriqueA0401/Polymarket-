@@ -71,18 +71,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción falsable: PnL > 0 con IC95% cluster (ciudad-fecha) > 0. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
-- Fuente: subagente (guías: el YES está sobrevalorado frente a la tasa base). 10,321
-  mercados de entrenamiento (pregunta con "say"/"mention").
-- Protocolo G0 (fijado 2026-10-14, antes de ver precios o resultados de esta categoría):
-  - Universo: mercados de entrenamiento cuya pregunta contiene "say" o "mention".
-  - t = endDate − 2h (antes del evento típico). Comprar NO al peor precio real de compra de
-    NO en (t−2h, t] si el precio YES implícito (1 − precio NO) está en [0.20, 0.80].
-  - PnL = pago − precio − comisión; clusters = evento (mismo discurso).
-  - Predicción falsable: PnL > 0 con IC95% > 0, y se mantiene sin top-5 eventos. Variantes: 1.
-  - Quién pierde: compradores de YES que sobreestiman la probabilidad de una palabra concreta.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H019 — Ventana de propuesta UMA (comprar el lado propuesto antes del settle)
 - Fuente: subagente; generaliza H015. Requiere eventos ProposePrice on-chain (Polygon).
   Prior rebajado: H015 mostró que tras el evento el precio ya está ≥0.995 casi siempre.
@@ -428,3 +416,16 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción: PnL > 0 con IC95% cluster (día de vencimiento × activo) > 0. Variantes: 1.
 - G2 (reports/h016_g2.md): 52 apuestas, PnL −5.56 c (IC −14.6…+4.4); Brier modelo 0.0835 vs PM 0.0770.
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H016_barreras_cripto.md | Variantes: 1
+
+### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
+- Fuente: subagente (guías: el YES está sobrevalorado frente a la tasa base). 10,321
+  mercados de entrenamiento (pregunta con "say"/"mention").
+- Protocolo G0 (fijado 2026-10-14, antes de ver precios o resultados de esta categoría):
+  - Universo: mercados de entrenamiento cuya pregunta contiene "say" o "mention".
+  - t = endDate − 2h (antes del evento típico). Comprar NO al peor precio real de compra de
+    NO en (t−2h, t] si el precio YES implícito (1 − precio NO) está en [0.20, 0.80].
+  - PnL = pago − precio − comisión; clusters = evento (mismo discurso).
+  - Predicción falsable: PnL > 0 con IC95% > 0, y se mantiene sin top-5 eventos. Variantes: 1.
+  - Quién pierde: compradores de YES que sobreestiman la probabilidad de una palabra concreta.
+- G2 (reports/h018_g2.md): 2,193 ops, PnL +1.04 c (IC −2.00…+3.95); sin top-5 −0.60 c.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H018_menciones.md | Variantes: 1
