@@ -14,7 +14,8 @@
   ~enero 2027; evaluar con rentabilidad de CARTERA y censura por evento.
 - Meta-revisión nº2: sin borde explotable con datos públicos tras 17 cerradas.
 - H023 (lead-lag Kalshi→PM pre-partido): G0 escrito, G1/G2 delegados a subagente.
-- Subagente investigando ideas con información lenta/privilegiada (meta-revisión).
+- H027 (temperatura mismo día con METAR) y H028 (batir beneficios vs historial): G0 escritos,
+  G1/G2 delegados a subagentes. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
 ## Siguiente paso exacto
 1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
