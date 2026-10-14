@@ -12,7 +12,8 @@
 - H014 — temperatura vs pronóstico Open-Meteo: G0 escrito; G1/G2 delegados a un subagente
   (archivos src/pmq/h014.py, experiments/h014_g*.py, reports/h014_g*.md).
 - H015 RECHAZADA (6 oportunidades en 6,821 mercados).
-- H016 (barreras cripto) delegada a subagente; H017 (carry NO 90d) en curso: experiments/h017_g2.py.
+- H016 (barreras cripto) delegada a subagente. H017 RECHAZADA (anualizado 7.9%, IC incluye <4%;
+  es el borde por acción más claro hasta ahora: +1.8 c). H018 (menciones) en curso: experiments/h018_g2.py.
 - Un subagente investiga hipótesis nuevas (literatura/foros) para la cola.
 
 ## Siguiente paso exacto
@@ -31,4 +32,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 18 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1). Cerradas: 10.
+- 19 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H017: 1). Cerradas: 11.

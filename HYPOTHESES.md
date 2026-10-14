@@ -89,26 +89,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción: PnL > 0 con IC95% cluster (día de vencimiento × activo) > 0. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H017 — Carry en NO de eventos improbables a largo plazo
-- Fuente: subagente (holding rewards 4% APY en docs; "Nothing Ever Happens"). H001 solo
-  probó 24h y 7d.
-- Racional: compradores de lotería pagan de más por YES en eventos lejanos e improbables;
-  quien vende (compra NO) cobra una prima + holding reward; coste: capital inmovilizado.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: muestra h001 ∪ h006r NO sirve (solo ventana de 8 días) → nueva muestra:
-    mercados de entrenamiento con duración ≥ 120 días (start ≤ end − 120d), aleatoria por
-    evento (sha256 mod 1000 < 100). Precio YES en t = end − 90d por prices-history diario.
-  - Señal: 0.02 ≤ p_t ≤ 0.10 → comprar NO al peor precio real de compra de NO en (t−3d, t].
-  - PnL = pago − precio − comisión (+ holding reward 4%/año prorrateado SOLO si la categoría
-    lo tenía documentado; si no, 0 — pesimista). Rendimiento anualizado por días hasta cierre;
-    comparar con 4%/año (letra del Tesoro aprox.).
-  - Clusters = evento; además informe por tema (país/persona) por correlación de colas.
-  - Predicción: rendimiento anualizado medio > 4% + 2 pp con IC95% > 4%. Variantes: 1.
-  - ENMIENDA (2026-10-14, antes de descargar precios): solo 6,041 mercados de entrenamiento
-    cumplen duración ≥120d y abiertos en end−90d; la muestra 10% (495) es inviable → se usa
-    el universo elegible completo (6,041). Sin ver precios ni resultados.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
 - Fuente: subagente (guías: el YES está sobrevalorado frente a la tasa base). 10,321
   mercados de entrenamiento (pregunta con "say"/"mention").
@@ -403,3 +383,24 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     se cuentan y reportan todos los casos en que el "ganador" no cobra.
 - G2 (reports/h015_g2.md): 6 oportunidades en 6,821 mercados (precio ≤0.995); PnL +5.5 c pero n ínfimo.
 - Estado: RECHAZADA | Gate: falla G4/G6 (frecuencia y capacidad) | Motivo: findings/H015_ganador_tras_partido.md | Variantes: 1
+
+### H017 — Carry en NO de eventos improbables a largo plazo
+- Fuente: subagente (holding rewards 4% APY en docs; "Nothing Ever Happens"). H001 solo
+  probó 24h y 7d.
+- Racional: compradores de lotería pagan de más por YES en eventos lejanos e improbables;
+  quien vende (compra NO) cobra una prima + holding reward; coste: capital inmovilizado.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: muestra h001 ∪ h006r NO sirve (solo ventana de 8 días) → nueva muestra:
+    mercados de entrenamiento con duración ≥ 120 días (start ≤ end − 120d), aleatoria por
+    evento (sha256 mod 1000 < 100). Precio YES en t = end − 90d por prices-history diario.
+  - Señal: 0.02 ≤ p_t ≤ 0.10 → comprar NO al peor precio real de compra de NO en (t−3d, t].
+  - PnL = pago − precio − comisión (+ holding reward 4%/año prorrateado SOLO si la categoría
+    lo tenía documentado; si no, 0 — pesimista). Rendimiento anualizado por días hasta cierre;
+    comparar con 4%/año (letra del Tesoro aprox.).
+  - Clusters = evento; además informe por tema (país/persona) por correlación de colas.
+  - Predicción: rendimiento anualizado medio > 4% + 2 pp con IC95% > 4%. Variantes: 1.
+  - ENMIENDA (2026-10-14, antes de descargar precios): solo 6,041 mercados de entrenamiento
+    cumplen duración ≥120d y abiertos en end−90d; la muestra 10% (495) es inviable → se usa
+    el universo elegible completo (6,041). Sin ver precios ni resultados.
+- G2 (reports/h017_g2.md): 936 ops; PnL +1.79 c (IC +0.86…+2.62); anualizado 7.87% (IC −5.81…+17.93%).
+- Estado: RECHAZADA | Gate: falla G2 (criterio anualizado) | Motivo: findings/H017_carry_no_largo_plazo.md | Variantes: 1
