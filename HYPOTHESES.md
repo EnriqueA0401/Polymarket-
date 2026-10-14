@@ -98,7 +98,9 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Fuente: subagente (arXiv 2508.03474). Coste alto; ventanas de segundos. Estado: pendiente | Variantes: 0
 
 ### H022 — Macro (PIB, IPC, Fed) vs nowcasts oficiales (GDPNow, Cleveland Fed)
-- Fuente: subagente. Pocos eventos independientes (riesgo de no llegar a 150). Estado: pendiente | Variantes: 0
+- Fuente: subagente. Conteo en entrenamiento: PIB 25 eventos, Fed 84, IPC ~60 publicaciones
+  mensuales independientes, paro 52 → imposible alcanzar 150 independientes (G4).
+- Estado: DESCARTADA antes de probar (G4 estructuralmente imposible) | Variantes: 0
 
 ### H023 — Lead-lag Kalshi → Polymarket
 - Fuente: subagente. Prior bajo (PM suele liderar), exige latencia. Estado: pendiente | Variantes: 0
@@ -109,7 +111,18 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   HOLDOUT (G3), una sola vez, y cuenta como prueba nueva en el contador.
 - Idea: limitar a mercados con holdingRewardsEnabled=true (campo de Gamma, 4% APY documentado)
   y sumar esa recompensa prorrateada; carteras diversificadas por tema.
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo (fijado 2026-10-14; G3 = HOLDOUT, UNA sola ejecución):
+  - Código: experiments/h017_g2.py parametrizado; primero se reproduce H017 en entrenamiento
+    (mismos números = validación del código), después UNA ejecución en holdout.
+  - Universo holdout: mercados con closedTime ≥ 2026-04-12, duración ≥ 120 d, abiertos en
+    end−90d, end ≤ fecha de datos. Misma señal (0.02 ≤ p ≤ 0.10 en end−90d), misma entrada
+    (peor compra real de NO en (t−3d, t]), misma comisión.
+  - Holding reward: +4%/año prorrateado sobre el precio solo si holdingRewardsEnabled=true en
+    Gamma (valor observado tras el cierre; supuesto declarado). Se reportan ambos (con y sin).
+  - Éxito: (a) PnL por acción > 0 con IC95% > 0 en holdout; y (b) anualizado medio CON holding
+    reward > 6% con IC95% inferior > 4%. Si (a) sí y (b) no → sesgo confirmado pero no
+    explotable frente al coste de capital.
+- Estado: activa | Gate: G3 (holdout) pendiente | Variantes: 0
 
 ## Cerradas
 
