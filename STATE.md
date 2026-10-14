@@ -9,19 +9,19 @@
 ## Hipótesis activa
 - H002 — snapshots negRisk: `experiments/run_h002.sh` (evaluar ~2026-10-20).
 - H010 — escaleras de fechas: `experiments/run_h010.sh` (evaluar ~2026-10-21).
-- H014 — temperatura vs pronóstico Open-Meteo: G0 escrito; G1/G2 delegados a un subagente
-  (archivos src/pmq/h014.py, experiments/h014_g*.py, reports/h014_g*.md).
-- H015 RECHAZADA (6 oportunidades en 6,821 mercados).
-- H016 RECHAZADA (modelo peor que PM; 52 apuestas). H017 RECHAZADA (anualizado 7.9%, IC incluye <4%;
-  es el borde por acción más claro hasta ahora: +1.8 c). H018 RECHAZADA (+1.0 c, IC incluye 0).
-- H020 (deriva primera hora) delegada a subagente.
-- Un subagente investiga hipótesis nuevas (literatura/foros) para la cola.
+  (Relanzados 2026-10-14 10:41 tras hueco 06:19–10:41 por reinicio.)
+- H024 — G3 en HOLDOUT (una vez) en curso: `python experiments/h017_g2.py holdout` →
+  reports/h024_g3.md (el script se niega a repetir si ya existe el informe).
+- H014 (temperatura vs Open-Meteo) y H020 (deriva primera hora): subagentes en curso;
+  archivos WIP ya subidos (src/pmq/h014.py, h020; experiments/h014_*, h020_*).
 
 ## Siguiente paso exacto
 1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
-2. Integrar resultados de H014 (revisar código, tests, informe; commit) y H015.
-3. Añadir a HYPOTHESES.md las mejores ideas del subagente de investigación (G0 antes de datos).
-4. Meta-revisión nº1 hecha (reports/meta_review.md). Próxima tras 20 cerradas.
+2. Leer reports/h024_g3.md y cerrar H024 (findings) según criterio pre-registrado.
+3. Integrar H014 y H020 cuando terminen (revisar código/tests, informes, findings).
+4. Cola restante: H019 (UMA, baja prioridad), H021 (combinatorio, coste alto), H023 (lead-lag
+   Kalshi, prior bajo), H007/H009 (solo forward). Si fallan H014/H020/H024 → meta-revisión
+   anticipada sobre si existe borde con datos públicos y latencia de minutos.
 5. ~2026-10-20: evaluar H002; ~2026-10-21: H010.
 
 ## Bloqueos / limitaciones
@@ -33,4 +33,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 21 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1). Cerradas: 13.
+- 21 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1). Cerradas: 13 (+H022 descartada sin prueba).
