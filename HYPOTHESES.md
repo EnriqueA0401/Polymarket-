@@ -152,22 +152,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     reglas de resolución verificadas idénticas. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H041 — Comprar el lado del DISPUTANTE tras una disputa UMA (derivada de H035)
-- Fuente: H035 (en entrenamiento el lado propuesto ganó solo 35% tras la disputa).
-- AVISO de snooping: diseñada tras ver H035 en entrenamiento → G2 en entrenamiento (cuenta como
-  prueba) y veredicto final SOLO en el HOLDOUT (G3), una vez.
-- Racional: un disputante arriesga su fianza; si disputa, suele tener información o razón sobre
-  las reglas. El mercado puede no descontarlo del todo. Pierden quienes compran el lado propuesto
-  por inercia tras la disputa.
-- Protocolo (fijado 2026-10-14, antes de calcular este lado):
-  - Igual que H035 (mismos mercados, mismas horas de disputa on-chain, t = disputa + 30 min),
-    pero comprando el token OPUESTO al propuesto: peor compra taker real en (t, t+2 h];
-    solo si precio ≤ 0.95. Hasta resolución; comisión vigente; clusters = evento.
-  - Éxito G2: PnL > 0 con IC95% > 0, costes×2 > 0, sin top-5 > 0.
-  - G3 (holdout, una vez): escanear logs de disputa desde 2026-04-12; mismo código. Éxito: PnL > 0
-    con IC95% > 0 y ≥ 150 eventos entre G2+G3 independientes; rentabilidad de cartera reportada.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
@@ -683,3 +667,20 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - (Restricciones geográficas no se evalúan por decisión del usuario; foco en la señal.)
 - G2 (reports/h040_g2.md): mejor regla (reversión ETH) 51.1% (IC 50.9–51.4%) < 55.6% (pago 80%).
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H040_binarias_broker.md | Variantes: 2
+
+### H041 — Comprar el lado del DISPUTANTE tras una disputa UMA (derivada de H035)
+- Fuente: H035 (en entrenamiento el lado propuesto ganó solo 35% tras la disputa).
+- AVISO de snooping: diseñada tras ver H035 en entrenamiento → G2 en entrenamiento (cuenta como
+  prueba) y veredicto final SOLO en el HOLDOUT (G3), una vez.
+- Racional: un disputante arriesga su fianza; si disputa, suele tener información o razón sobre
+  las reglas. El mercado puede no descontarlo del todo. Pierden quienes compran el lado propuesto
+  por inercia tras la disputa.
+- Protocolo (fijado 2026-10-14, antes de calcular este lado):
+  - Igual que H035 (mismos mercados, mismas horas de disputa on-chain, t = disputa + 30 min),
+    pero comprando el token OPUESTO al propuesto: peor compra taker real en (t, t+2 h];
+    solo si precio ≤ 0.95. Hasta resolución; comisión vigente; clusters = evento.
+  - Éxito G2: PnL > 0 con IC95% > 0, costes×2 > 0, sin top-5 > 0.
+  - G3 (holdout, una vez): escanear logs de disputa desde 2026-04-12; mismo código. Éxito: PnL > 0
+    con IC95% > 0 y ≥ 150 eventos entre G2+G3 independientes; rentabilidad de cartera reportada.
+- G2 (reports/h041_g2.md): 530 ops / 426 eventos; lado disputante gana 15.3% a 0.199; PnL −5.17 c (IC −7.40…−2.94). Holdout no tocado.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H041_lado_disputante.md | Variantes: 1
