@@ -41,27 +41,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   H005 mostró que PM ya es tan preciso como Pinnacle pre-partido.
 - Estado: pendiente | Gate: — | Variantes: 0
 
-### H008 — Seguir a wallets rentables (copy trading con retraso)
-- Fuente: flujo de wallets.
-- Racional: si existen operadores informados persistentes, sus compras predicen el
-  resultado más allá del precio. Quién pierde: la contraparte de esos operadores (takers y
-  makers desinformados); el copiador gana solo si la información no se incorpora al precio
-  antes de que pueda entrar.
-- Protocolo G0 (fijado 2026-10-14, antes de descargar trades):
-  - Formación F: mercados de la muestra (h001 ∪ h006r) con closedTime en
-    [2025-07-01, 2026-01-01) y volumen ≥ 10k USD (26,689). Trades taker (Data API,
-    takerOnly, ≤10,000 más recientes por mercado; truncamiento documentado).
-  - PnL realizado por wallet en F: BUY → size·(pago − precio); SELL → size·(precio − pago).
-    Anulados pago 0.5. Elegibles: ≥ 20 trades en ≥ 10 eventos distintos.
-    Ranking: PnL total / sqrt(nº trades). Top k = 50.
-  - Test T: [2026-01-01, 2026-04-12) (antes del holdout). Para cada wallet top: sus trades
-    (Data API ?user=) en T; copiar cada BUY en un mercado binario abierto: entrada a precio
-    = peor compra taker real del mismo token en (ts+60s, ts+660s]; sin trades → no se copia.
-    Una entrada por (wallet, token). Comisión: rate del mercado o 0.07.
-  - Predicción falsable: PnL medio por acción > 0 con IC95% cluster (evento) > 0 y ≥ 150
-    eventos distintos copiados. Variantes previstas: solo esta (k=50, retraso 60s).
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
@@ -175,3 +154,25 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   coherencia de resolución, nunca precios). endDate = kickoff (mediana 0 h). G1 superado.
 - G2 (reports/h005_g2.md): 72 apuestas, PnL −7.3 c (IC −16.0…+2.1); Brier PM 0.1959 vs PS 0.1967.
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H005_polymarket_vs_pinnacle.md | Variantes: 1
+
+### H008 — Seguir a wallets rentables (copy trading con retraso)
+- Fuente: flujo de wallets.
+- Racional: si existen operadores informados persistentes, sus compras predicen el
+  resultado más allá del precio. Quién pierde: la contraparte de esos operadores (takers y
+  makers desinformados); el copiador gana solo si la información no se incorpora al precio
+  antes de que pueda entrar.
+- Protocolo G0 (fijado 2026-10-14, antes de descargar trades):
+  - Formación F: mercados de la muestra (h001 ∪ h006r) con closedTime en
+    [2025-07-01, 2026-01-01) y volumen ≥ 10k USD (26,689). Trades taker (Data API,
+    takerOnly, ≤10,000 más recientes por mercado; truncamiento documentado).
+  - PnL realizado por wallet en F: BUY → size·(pago − precio); SELL → size·(precio − pago).
+    Anulados pago 0.5. Elegibles: ≥ 20 trades en ≥ 10 eventos distintos.
+    Ranking: PnL total / sqrt(nº trades). Top k = 50.
+  - Test T: [2026-01-01, 2026-04-12) (antes del holdout). Para cada wallet top: sus trades
+    (Data API ?user=) en T; copiar cada BUY en un mercado binario abierto: entrada a precio
+    = peor compra taker real del mismo token en (ts+60s, ts+660s]; sin trades → no se copia.
+    Una entrada por (wallet, token). Comisión: rate del mercado o 0.07.
+  - Predicción falsable: PnL medio por acción > 0 con IC95% cluster (evento) > 0 y ≥ 150
+    eventos distintos copiados. Variantes previstas: solo esta (k=50, retraso 60s).
+- G2 (reports/h008_g2.md): copia −3.36 c (IC −4.79…−1.95); wallets a su precio +1.82 c (IC −0.23…+4.05).
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H008_copiar_wallets.md | Variantes: 1
