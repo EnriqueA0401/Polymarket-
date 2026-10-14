@@ -39,7 +39,18 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Fuente: inconsistencias internas. En un evento con varias fechas límite, P(antes de D1)
   ≤ P(antes de D2) si D1 < D2. Violaciones ejecutables (ask D2 < bid D1 tras costes) son
   arbitraje. Medición forward con libros vivos (como H002) y retro con trades.
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: eventos abiertos NO negRisk con ≥ 2 mercados binarios aceptando órdenes,
+    cuyas preguntas contienen " by " y difieren en endDate (escalera de fechas límite).
+  - Para cada par D1 < D2 del mismo evento: comprar NO(D1) + YES(D2) barriendo asks para
+    50 acciones; pago ≥ 1 en todos los escenarios (2 si ocurre entre D1 y D2).
+    Retorno = (50 − coste)/coste, coste con comisiones taker; anualizado hasta endDate(D2).
+  - Riesgo declarado: reglas no anidadas (fuentes/definiciones distintas por fecha);
+    cada oportunidad positiva se revisa manualmente leyendo las reglas antes de contarla.
+  - Predicción falsable: ≥ 5 eventos distintos por semana con retorno ≥ 0.5% y anualizado
+    ≥ 20%. Si no, se rechaza. Medición: snapshots horarios durante 7 días.
+  - Quién pierde: quien compra la fecha corta (o vende la larga) sin mirar la escalera.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ## Cerradas
 
