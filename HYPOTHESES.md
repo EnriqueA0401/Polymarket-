@@ -52,6 +52,24 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Quién pierde: quien compra la fecha corta (o vende la larga) sin mirar la escalera.
 - Estado: activa | Gate: G0 | Variantes: 0
 
+### H013 — Recompensas de liquidez vs selección adversa (maker pequeño)
+- Fuente: microestructura (programa de recompensas, docs.polymarket.com/market-makers/liquidity-rewards).
+- Racional: Polymarket paga diariamente a makers por cotizar cerca del medio
+  (S = ((v−s)/v)²·tamaño; reparto proporcional; Q_min exige dos lados o divide por c=3).
+  Si la recompensa por dólar inmovilizado supera la pérdida por selección adversa, hay
+  borde. Quién paga: el programa de incentivos (y los takers informados contra el maker).
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Etapa 1 (rendimiento esperado, snapshots vivos): mercados con recompensas activas y
+    mid en [0.10, 0.90]. Órdenes propias hipotéticas: tamaño = rewards_min_size, a
+    s = v/2 del mid en ambos lados. Q_lado existente = Σ ((v−s_i)/v)²·tamaño_i de órdenes
+    dentro de v. Cuota = min(q/(q+Q1), q/(q+Q2)). Recompensa/día = tasa_diaria·cuota.
+    Capital = tamaño·bid + tamaño·(1−ask). Rendimiento/día = recompensa/capital.
+  - Éxito etapa 1: ≥ 20 mercados con recompensa ≥ 1 USD/día y rendimiento ≥ 0.5%/día en
+    la mediana de 3 snapshots (separados ≥ 4 h). Si no → rechazar.
+  - Etapa 2 (solo si pasa la 1): paper trading forward con fills pesimistas (trade taker que
+    cruza estrictamente nuestro nivel) para medir la selección adversa; criterio G7.
+- Estado: activa | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
