@@ -62,7 +62,10 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     (o la del mercado). Señal: P_justa − precio − comisión ≥ 0.03 (YES o NO).
   - Predicción falsable: PnL medio > 0 con IC95% > 0, clusters = hora de inicio de ventana
     (BTC y ETH en la misma ventana correlacionan). Variantes: 1.
-- Estado: activa | Gate: G0 | Variantes: 0
+  - Aclaración pre-G2: s = t0 + floor(ventana/2) minutos (15m → 7 min).
+- G1 (reports/h011_g1.md): en entrenamiento todas las reglas son "vela". Concordancia
+  hourly 100%, 15m 98.0–98.9%, 5m 96.5–96.9% → 5m EXCLUIDAS (umbral 97%).
+- Estado: activa | Gate: G1 | Variantes: 0
 
 ## Cerradas
 
