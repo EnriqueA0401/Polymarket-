@@ -105,6 +105,14 @@ L = ["# H020 G2 — deriva de la primera hora en mercados nuevos (entrenamiento)
      "- Predicción (una variante con PnL > 0, IC95% > 0 y p Holm < 0.05): " +
      ("CUMPLIDA" if any(r and res[v].pnl.mean() > 0 and h001.cluster_bootstrap(res[v], col="pnl")[0] > 0
                         for r, v in zip(rej, "AB")) else "NO cumplida"), "",
+     "## Diagnóstico (no es una variante; no cuenta en el contador)", "",
+     f"- trades taker en [a0, a0+120m] por mercado con a0: mediana {m[m.status == 'ok'].n_tr.median():.0f} "
+     "→ la mayoría de mercados apenas opera en sus dos primeras horas (gran atrición en la VWAP).",
+     (lambda bb: f"- señales con compra real de ambos tokens en la ventana de entrada: {len(bb)}; "
+      f"peor YES + peor NO = {(bb.px_yes + bb.px_no).mean():.3f} (media), mediana YES + mediana NO = "
+      f"{(bb.med_yes + bb.med_no).mean():.3f}: la sobreprima de ejecución en libros nuevos explica que A y B pierdan a la vez.")(
+         sig[sig.px_yes.notna() & sig.px_no.notna()]),
+     f"- n operaciones (A {len(res['A'])}, B {len(res['B'])}) < 150 mercados: aunque fuese positiva, G4 fallaría por tamaño.", "",
      "## Notas de implementación", "",
      "- a0 = mínimo timestamp de trades taker (takerOnly=true) del mercado, buscado en [0, start+3d] y, si vacío, "
      "en ventanas crecientes hasta closedTime+1d; descenso por ventanas cuando la API devuelve 10,000.",
