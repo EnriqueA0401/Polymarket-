@@ -104,7 +104,13 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Éxito: (a) PnL por acción > 0 con IC95% > 0 en holdout; y (b) anualizado medio CON holding
     reward > 6% con IC95% inferior > 4%. Si (a) sí y (b) no → sesgo confirmado pero no
     explotable frente al coste de capital.
-- Estado: activa | Gate: G3 (holdout) pendiente | Variantes: 0
+- G3 HOLDOUT (reports/h024_g3.md, una ejecución): 471 ops / 231 eventos; PnL +1.37 c/acción
+  (IC95% +0.07…+2.67); anualizado medio 13.90% (IC 6.91…21.20%); con holding reward 13.95%
+  (solo 5 mercados lo tenían). Criterios (a) y (b): CUMPLE.
+- En curso (2026-10-14): G4/G5 — rentabilidad de cartera (capital×tiempo), costes×2, sin
+  top-5, concentración por tema, vecinos de parámetros (en ENTRENAMIENTO), corrección por
+  las 24 pruebas totales; doble implementación independiente y red team (subagentes).
+- Estado: activa | Gate: G3 superado; G4/G5 en curso | Variantes: 1
 
 ## Cerradas
 
