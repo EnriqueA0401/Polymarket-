@@ -106,6 +106,20 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     pasa a forward). Brier modelo < Brier precio. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
+### H033 — Combinatorio: P(gana presidencia 2028) ≤ P(gana nominación de su partido)
+- Fuente: H021 (arbitraje combinatorio), caso concreto y verificable.
+- Racional: para cada candidato, comprar NO(presidencia) + YES(nominación) paga ≥ 1 salvo que
+  gane la presidencia sin la nominación (independiente/sustitución: riesgo declarado, raro).
+  Si el coste < 1 tras comisiones hay arbitraje casi puro. Pierden quienes compran el YES de
+  presidencia de un candidato sin mirar su nominación.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Eventos 31552 (presidencia 2028) y 30829/31875 (nominaciones D/R); emparejar por nombre.
+  - Snapshot cada 6 h: coste de 50 acciones de cada pierna barriendo asks + comisión.
+  - Retorno = (50 − coste)/coste; anualizado de cartera hasta la elección (nov 2028).
+  - Éxito (forward, 4 semanas): ≥ 5 candidatos distintos con retorno ≥ 1% y anualizado
+    ≥ 6% en algún snapshot, confirmados leyendo las reglas. Si no → rechazar.
+- Estado: activa (forward) | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot

@@ -14,7 +14,9 @@
   ~enero 2027; evaluar con rentabilidad de CARTERA y censura por evento.
 - Meta-revisión nº2: sin borde explotable con datos públicos tras 17 cerradas.
 - H027 RECHAZADA (PM bate al nowcast METAR). H028 RECHAZADA (PM bate a la tasa base).
-  H023 RECHAZADA (seguimiento PM ~0.5 c < costes). H032 (posts semanales): subagente. H029–H032 en cola solo forward (n < 150 en entrenamiento).
+  H023 RECHAZADA (seguimiento PM ~0.5 c < costes). H032 (posts semanales): subagente.
+- H033 (presidencia ≤ nominación 2028): snapshots cada 6 h (`experiments/run_h033.sh`). Piloto:
+  121 pares, máximo +0.29% (anualizado 0.14%) → coherente; evaluar ~2026-11-11. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
 ## Siguiente paso exacto
 1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
