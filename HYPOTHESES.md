@@ -55,7 +55,12 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     de un mercado profesional.
   - Limitación: hora exacta de recogida de PSH desconocida (suele ser viernes/martes);
     estrategia real necesitaría cuotas vivas (forward, G7).
-- Estado: activa | Gate: G0 | Variantes: 0
+  - Aclaración pre-G2: "comprar el resultado" incluye YES (gana X) y NO (no gana X) del
+    mercado "Will X win on D?"; prob. justa del NO = 1 − prob. justa del YES.
+- G1 (reports/h005_g1.md): 10,889 candidatos, 10,083 emparejados con resolución limpia,
+  0 discrepancias PM vs resultado real tras alias/umbral (los ajustes usaron solo la
+  coherencia de resolución, nunca precios). endDate = kickoff (mediana 0 h). G1 superado.
+- Estado: activa | Gate: G1 | Variantes: 0
 
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
