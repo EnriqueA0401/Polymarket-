@@ -138,6 +138,49 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Snapshots cada hora durante 7 días. Éxito: ≥ 5 eventos distintos/semana con retorno ≥ 0.5%.
 - Estado: activa (forward) | Gate: G0 | Variantes: 0
 
+### H038 [BIN] — Calibración en Kalshi con precios ejecutables (favorito-longshot)
+- Fuente: ampliación a opciones binarias; literatura (CEPR/VoxEU: sesgo favorito-longshot en
+  Kalshi). Racional: base minorista mayor y comisión distinta a PM → el sesgo podría superar
+  el coste allí. Pierden compradores de longshots.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos de Kalshi):
+  - Universo: mercados binarios liquidados de Kalshi (todas las series con historial
+    público), entrenamiento = liquidados < 2026-04-12; holdout = posteriores (intocable).
+    Muestra aleatoria por evento si hay demasiados (regla fijada por presupuesto).
+  - t = cierre programado − 24 h. Precio ejecutable = peor compra taker real (trades públicos)
+    del lado elegido en (t−1 h, t]. Comisión Kalshi: ceil(0.07·C·P·(1−P)) en céntimos por orden
+    (taker); verificar tabla de comisiones vigente por serie.
+  - Señal: P ≤ 0.10 → comprar NO; P ≥ 0.90 → comprar YES (como H001).
+  - Predicción: PnL > 0 con IC95% cluster (evento) > 0; costes×2 > 0. Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H039 [BIN] — Arbitraje entre plataformas Kalshi ↔ Polymarket (mismo evento)
+- Fuente: ampliación; emparejamiento ya hecho en H023 (deportes, 3,962 partidos).
+- Racional: si en el mismo instante YES en una plataforma + NO en la otra cuestan < 1 tras
+  comisiones, el pago es 1 seguro (salvo diferencias de reglas). Pierde el lado lento.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Histórico (entrenamiento): para cada partido emparejado, ventanas de 1 min antes del inicio
+    con trades taker de compra en ambas plataformas: coste = peor compra YES_K + peor compra
+    NO_PM (y la combinación inversa) en el mismo minuto + comisiones de ambas. Oportunidad si
+    coste < 0.99.
+  - Forward: snapshots de libros de ambas plataformas cada 30 min durante 7 días.
+  - Predicción: ≥ 150 partidos con oportunidad y beneficio medio ≥ 1 c por par tras comisiones,
+    reglas de resolución verificadas idénticas. Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H040 [BIN] — Binarias de bróker de pago fijo vs predictibilidad del subyacente
+- Fuente: ampliación. Brokers ofrecen "arriba/abajo" a 1–15 min con pago fijo 80–90% → punto
+  de equilibrio de acierto = 1/(1+pago): 52.6% (90%) a 55.6% (80%).
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Datos: Binance 1m BTCUSDT y ETHUSDT (data.binance.vision), 2025-01-01 → 2026-04-11
+    (entrenamiento); holdout 2026-04-12 → hoy (una vez).
+  - Reglas (2 variantes, Holm): momentum (signo del retorno de los 5 min previos) y reversión
+    (signo contrario), horizonte 5 min, entrada en el cierre del minuto.
+  - Predicción: acierto > 55.6% (pago 80%) con IC95% por día > 55.6%. Si no → rechazar y
+    documentar que el valor esperado es negativo por construcción.
+  - G6: ilegal para minoristas en la UE desde 2018 (ESMA/CNMV); brokers sin regulación =
+    riesgo de contraparte → aunque pasara, no sería operable legalmente en España.
+- Estado: activa | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
