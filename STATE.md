@@ -9,7 +9,7 @@
 ## Hipótesis activa
 - ALCANCE AMPLIADO (usuario, 14/10): opciones binarias (ver CLAUDE.md). En curso: H038 [BIN]
   calibración Kalshi (subagente), H039 [BIN] arbitraje Kalshi↔PM (subagente), H040 [BIN]
-  binarias de bróker vs predictibilidad a 5 min (experiments/h040_g2.py).
+  RECHAZADA (acierto máx. 51.1% < 55.6%).
 - H002 — snapshots negRisk (evaluar ~2026-10-20).
 - H010 — escaleras de fechas (evaluar ~2026-10-21).
 - H026 — paper trading carry NO a ~90 d en mercados NO negRisk: registro cada 6 h desde
@@ -43,4 +43,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 32 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1; H032: 1; H034: 1; H035: 1). Cerradas: 23 (+H022 descartada sin prueba).
+- 34 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1; H032: 1; H034: 1; H035: 1; H040: 2). Cerradas: 24 (+H022 descartada sin prueba).

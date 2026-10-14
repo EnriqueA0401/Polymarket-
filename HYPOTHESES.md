@@ -152,19 +152,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     reglas de resolución verificadas idénticas. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H040 [BIN] — Binarias de bróker de pago fijo vs predictibilidad del subyacente
-- Fuente: ampliación. Brokers ofrecen "arriba/abajo" a 1–15 min con pago fijo 80–90% → punto
-  de equilibrio de acierto = 1/(1+pago): 52.6% (90%) a 55.6% (80%).
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Datos: Binance 1m BTCUSDT y ETHUSDT (data.binance.vision), 2025-01-01 → 2026-04-11
-    (entrenamiento); holdout 2026-04-12 → hoy (una vez).
-  - Reglas (2 variantes, Holm): momentum (signo del retorno de los 5 min previos) y reversión
-    (signo contrario), horizonte 5 min, entrada en el cierre del minuto.
-  - Predicción: acierto > 55.6% (pago 80%) con IC95% por día > 55.6%. Si no → rechazar y
-    documentar que el valor esperado es negativo por construcción.
-  - (Restricciones geográficas no se evalúan por decisión del usuario; foco en la señal.)
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H041 — Comprar el lado del DISPUTANTE tras una disputa UMA (derivada de H035)
 - Fuente: H035 (en entrenamiento el lado propuesto ganó solo 35% tras la disputa).
 - AVISO de snooping: diseñada tras ver H035 en entrenamiento → G2 en entrenamiento (cuenta como
@@ -682,3 +669,17 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     (resolución ≠ propuesta) y rentabilidad de cartera.
 - G2 (reports/h035_g2.md): 240 ops / 217 eventos; lado propuesto gana 35% a precio 0.48; PnL −13.8 c (IC −18.5…−9.1).
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H035_disputas_uma.md | Variantes: 1
+
+### H040 [BIN] — Binarias de bróker de pago fijo vs predictibilidad del subyacente
+- Fuente: ampliación. Brokers ofrecen "arriba/abajo" a 1–15 min con pago fijo 80–90% → punto
+  de equilibrio de acierto = 1/(1+pago): 52.6% (90%) a 55.6% (80%).
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Datos: Binance 1m BTCUSDT y ETHUSDT (data.binance.vision), 2025-01-01 → 2026-04-11
+    (entrenamiento); holdout 2026-04-12 → hoy (una vez).
+  - Reglas (2 variantes, Holm): momentum (signo del retorno de los 5 min previos) y reversión
+    (signo contrario), horizonte 5 min, entrada en el cierre del minuto.
+  - Predicción: acierto > 55.6% (pago 80%) con IC95% por día > 55.6%. Si no → rechazar y
+    documentar que el valor esperado es negativo por construcción.
+  - (Restricciones geográficas no se evalúan por decisión del usuario; foco en la señal.)
+- G2 (reports/h040_g2.md): mejor regla (reversión ETH) 51.1% (IC 50.9–51.4%) < 55.6% (pago 80%).
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H040_binarias_broker.md | Variantes: 2
