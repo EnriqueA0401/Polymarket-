@@ -89,7 +89,22 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   Estado: pendiente (baja prioridad) | Variantes: 0
 
 ### H020 — Apertura de mercados nuevos (deriva de la primera hora)
-- Fuente: subagente (IMDEA, liquidez inicial). Estado: pendiente | Variantes: 0
+- Fuente: subagente (IMDEA: libros iniciales anchos, precio inicial puede anclar).
+- Racional: al abrir, el precio se descubre con poca liquidez; si la primera hora de
+  operaciones muestra una deriva clara, puede continuar (anclaje lento) o revertir.
+  Pierden LPs con cotizaciones iniciales obsoletas o takers impacientes.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios de entrenamiento (end y closedTime < 2026-04-12) con
+    volumen total ≥ 5,000 USD, excluyendo series recurrentes de cripto Up/Down; muestra
+    aleatoria por evento sha256(event_id) mod 1000 < 50.
+  - Apertura a0 = primer trade taker del mercado. Deriva = (VWAP de trades taker en
+    [a0+50min, a0+60min] del token YES) − (precio del primer trade YES). Requiere |deriva|
+    ≥ 0.05 y precio YES actual en [0.10, 0.90].
+  - Variante A (momentum): comprar el lado de la deriva; Variante B (reversión): el contrario.
+    Entrada = peor compra taker real del token en (a0+60min, a0+120min]. Hasta resolución.
+  - PnL neto de comisión; clusters = evento. Holm sobre 2 pruebas.
+  - Predicción: una variante con PnL > 0 e IC95% > 0 y p corregido < 0.05.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H021 — Arbitraje combinatorio (candidato vs partido, estado vs nacional, moneyline vs spread)
 - Fuente: subagente (arXiv 2508.03474). Coste alto; ventanas de segundos. Estado: pendiente | Variantes: 0
