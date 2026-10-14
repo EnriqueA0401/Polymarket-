@@ -52,56 +52,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Quién pierde: quien compra la fecha corta (o vende la larga) sin mirar la escalera.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H013 — Recompensas de liquidez vs selección adversa (maker pequeño)
-- Fuente: microestructura (programa de recompensas, docs.polymarket.com/market-makers/liquidity-rewards).
-- Racional: Polymarket paga diariamente a makers por cotizar cerca del medio
-  (S = ((v−s)/v)²·tamaño; reparto proporcional; Q_min exige dos lados o divide por c=3).
-  Si la recompensa por dólar inmovilizado supera la pérdida por selección adversa, hay
-  borde. Quién paga: el programa de incentivos (y los takers informados contra el maker).
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Etapa 1 (rendimiento esperado, snapshots vivos): mercados con recompensas activas y
-    mid en [0.10, 0.90]. Órdenes propias hipotéticas: tamaño = rewards_min_size, a
-    s = v/2 del mid en ambos lados. Q_lado existente = Σ ((v−s_i)/v)²·tamaño_i de órdenes
-    dentro de v. Cuota = min(q/(q+Q1), q/(q+Q2)). Recompensa/día = tasa_diaria·cuota.
-    Capital = tamaño·bid + tamaño·(1−ask). Rendimiento/día = recompensa/capital.
-  - Éxito etapa 1: ≥ 20 mercados con recompensa ≥ 1 USD/día y rendimiento ≥ 0.5%/día en
-    la mediana de 3 snapshots (separados ≥ 4 h). Si no → rechazar.
-  - Etapa 2 (solo si pasa la 1): paper trading forward con fills pesimistas (trade taker que
-    cruza estrictamente nuestro nivel) para medir la selección adversa; criterio G7.
-- Etapa 1 (data/h013/snap_20261014T0634.csv): 13,876 mercados evaluables; 6,203 con
-  ≥1 USD/día y ≥0.5%/día; mediana 1.5%/día; top ~1000%/día con cuota 100% en libros vacíos.
-  DEMASIADO BUENO → se asume error hasta demostrar lo contrario. Tasas confirmadas en Gamma
-  (clobRewards), pero no hay datos públicos de pagos reales; los libros están vacíos cerca
-  del medio pese a pagar 100–200 USD/día → indicio fuerte de selección adversa o de reglas
-  de pago no modeladas.
-- Etapa 2a (pre-registrada 2026-10-14, antes de ver datos): cota de selección adversa en
-  ENTRENAMIENTO. Mercados cerrados < 2026-04-12 con clobRewards activos (raw Gamma),
-  muestra aleatoria 300 (semilla 0) con mid en [0.10, 0.90] 48 h antes de endDate.
-  Cotizar YES-bid y YES-ask a mid ± v/2 (mid = prices-history fidelity 1 min, solo ≤ t)
-  en la ventana [end−48h, end−24h], tamaño min_size, re-cotizando cada minuto; fill solo
-  si un trade taker cruza estrictamente el nivel; posiciones a resolución. Comparar pérdida
-  por día con la recompensa MÁXIMA posible (tasa diaria × cuota 1). Si pérdida > recompensa
-  máxima en la mediana → rechazar. Si no → etapa 2b forward (G7) con libros vivos.
-- Etapa 2a (reports/h013_2a.md, 300 mercados de entrenamiento, ventana end−48h…end−24h):
-  ~9 fills/día; PnL de cotización mediana 0.00 USD/día (media +0.21) vs recompensa máxima
-  mediana 10 USD/día → la selección adversa NO anula la recompensa. Pasa a 2b.
-- Verificación de pagos: Data API /activity?type=REWARD muestra pagos diarios reales a
-  makers de mercados recompensados (p. ej. 300–2,800 USD/día a los mayores). El programa
-  paga de verdad; falta saber qué cuota obtendría un maker pequeño.
-- Etapa 2b (pre-registrada 2026-10-14, antes de ver datos; paper trading, sin dinero):
-  - 60 mercados aleatorios (semilla 0) del conjunto recompensado actual con mid en
-    [0.15, 0.85], tasa ≥ 5 USD/día, endDate en 2–10 días.
-  - Cada 5 min: libros YES+NO → mid del libro combinado; órdenes propias hipotéticas a
-    mid ± v/2, tamaño min_size. Cuota = min(q/(q+Q1), q/(q+Q2)) sin contarnos a nosotros
-    en Q. Recompensa devengada = tasa × cuota × 5/1440 (solo si la recompensa diaria
-    estimada del mercado ≥ 1 USD; si no, 0 por el mínimo de pago).
-  - Fills: trades taker (Data API) del intervalo que crucen ESTRICTAMENTE nuestro nivel →
-    posición de min_size al precio propio (una por lado e intervalo). Hasta resolución.
-  - Duración: hasta que resuelvan los 60 o 14 días. Capital = máx. capital simultáneo.
-  - Éxito: Σ(PnL + recompensas) > 0 con IC95% bootstrap por mercado > 0 y rendimiento
-    mediano ≥ 0.3%/día sobre capital. Si no → rechazar.
-- Estado: activa | Gate: etapa 2b (forward) | Variantes: 1 (etapa 2a)
-
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
@@ -300,3 +250,53 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     ambas pagan spread; se corrige por 2 pruebas con Holm.)
 - G2 (reports/h012_g2.md): seguir −10.72 c (IC −11.70…−9.78); revertir −10.12 c (IC −11.09…−9.21).
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H012_saltos_precio.md | Variantes: 2
+
+### H013 — Recompensas de liquidez vs selección adversa (maker pequeño)
+- Fuente: microestructura (programa de recompensas, docs.polymarket.com/market-makers/liquidity-rewards).
+- Racional: Polymarket paga diariamente a makers por cotizar cerca del medio
+  (S = ((v−s)/v)²·tamaño; reparto proporcional; Q_min exige dos lados o divide por c=3).
+  Si la recompensa por dólar inmovilizado supera la pérdida por selección adversa, hay
+  borde. Quién paga: el programa de incentivos (y los takers informados contra el maker).
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Etapa 1 (rendimiento esperado, snapshots vivos): mercados con recompensas activas y
+    mid en [0.10, 0.90]. Órdenes propias hipotéticas: tamaño = rewards_min_size, a
+    s = v/2 del mid en ambos lados. Q_lado existente = Σ ((v−s_i)/v)²·tamaño_i de órdenes
+    dentro de v. Cuota = min(q/(q+Q1), q/(q+Q2)). Recompensa/día = tasa_diaria·cuota.
+    Capital = tamaño·bid + tamaño·(1−ask). Rendimiento/día = recompensa/capital.
+  - Éxito etapa 1: ≥ 20 mercados con recompensa ≥ 1 USD/día y rendimiento ≥ 0.5%/día en
+    la mediana de 3 snapshots (separados ≥ 4 h). Si no → rechazar.
+  - Etapa 2 (solo si pasa la 1): paper trading forward con fills pesimistas (trade taker que
+    cruza estrictamente nuestro nivel) para medir la selección adversa; criterio G7.
+- Etapa 1 (data/h013/snap_20261014T0634.csv): 13,876 mercados evaluables; 6,203 con
+  ≥1 USD/día y ≥0.5%/día; mediana 1.5%/día; top ~1000%/día con cuota 100% en libros vacíos.
+  DEMASIADO BUENO → se asume error hasta demostrar lo contrario. Tasas confirmadas en Gamma
+  (clobRewards), pero no hay datos públicos de pagos reales; los libros están vacíos cerca
+  del medio pese a pagar 100–200 USD/día → indicio fuerte de selección adversa o de reglas
+  de pago no modeladas.
+- Etapa 2a (pre-registrada 2026-10-14, antes de ver datos): cota de selección adversa en
+  ENTRENAMIENTO. Mercados cerrados < 2026-04-12 con clobRewards activos (raw Gamma),
+  muestra aleatoria 300 (semilla 0) con mid en [0.10, 0.90] 48 h antes de endDate.
+  Cotizar YES-bid y YES-ask a mid ± v/2 (mid = prices-history fidelity 1 min, solo ≤ t)
+  en la ventana [end−48h, end−24h], tamaño min_size, re-cotizando cada minuto; fill solo
+  si un trade taker cruza estrictamente el nivel; posiciones a resolución. Comparar pérdida
+  por día con la recompensa MÁXIMA posible (tasa diaria × cuota 1). Si pérdida > recompensa
+  máxima en la mediana → rechazar. Si no → etapa 2b forward (G7) con libros vivos.
+- Etapa 2a (reports/h013_2a.md, 300 mercados de entrenamiento, ventana end−48h…end−24h):
+  ~9 fills/día; PnL de cotización mediana 0.00 USD/día (media +0.21) vs recompensa máxima
+  mediana 10 USD/día → la selección adversa NO anula la recompensa. Pasa a 2b.
+- Verificación de pagos: Data API /activity?type=REWARD muestra pagos diarios reales a
+  makers de mercados recompensados (p. ej. 300–2,800 USD/día a los mayores). El programa
+  paga de verdad; falta saber qué cuota obtendría un maker pequeño.
+- Etapa 2b (pre-registrada 2026-10-14, antes de ver datos; paper trading, sin dinero):
+  - 60 mercados aleatorios (semilla 0) del conjunto recompensado actual con mid en
+    [0.15, 0.85], tasa ≥ 5 USD/día, endDate en 2–10 días.
+  - Cada 5 min: libros YES+NO → mid del libro combinado; órdenes propias hipotéticas a
+    mid ± v/2, tamaño min_size. Cuota = min(q/(q+Q1), q/(q+Q2)) sin contarnos a nosotros
+    en Q. Recompensa devengada = tasa × cuota × 5/1440 (solo si la recompensa diaria
+    estimada del mercado ≥ 1 USD; si no, 0 por el mínimo de pago).
+  - Fills: trades taker (Data API) del intervalo que crucen ESTRICTAMENTE nuestro nivel →
+    posición de min_size al precio propio (una por lado e intervalo). Hasta resolución.
+  - Duración: hasta que resuelvan los 60 o 14 días. Capital = máx. capital simultáneo.
+  - Éxito: Σ(PnL + recompensas) > 0 con IC95% bootstrap por mercado > 0 y rendimiento
+    mediano ≥ 0.3%/día sobre capital. Si no → rechazar.
+- Estado: DESCARTADA | Gate: etapa 2b (detenida) | Motivo: el usuario la probó en real sin buenos resultados; findings/H013_recompensas_liquidez.md | Variantes: 1
