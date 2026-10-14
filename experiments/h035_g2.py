@@ -65,6 +65,11 @@ b["cap2"] = [min(p + s, 0.999) + 2 * h014.fee(min(p + s, 0.999), r) for p, s, r 
 b["days"] = ((b.closed_time - pd.to_datetime(b.t0, unit="s", utc=True)).dt.total_seconds() / 86400).clip(lower=1 / 24)
 b["t_close"] = (b.closed_time - EPOCH) // pd.Timedelta(seconds=1)
 b["win"] = np.where(b.side == 0, b.y, 1 - b.y)
+# diagnóstico (no es la regla): precio mediano de las compras taker del lado propuesto en la ventana
+rmap = dict(zip(m.index, res))
+b["px_med"] = [float(np.median([float(x["price"]) for x in rmap[i] if x["outcomeIndex"] == s and x["side"] == "BUY"
+                                and t < x["timestamp"] <= t + W])) for i, s, t in zip(b.index, b.side, b.t0)]
+b["pnl_med"] = [h035.pnl(s, p, r, y) for s, p, r, y in zip(b.side, b.px_med, b.rate, b.y)]
 
 
 def ci(df, col, cluster="event_id"):
@@ -116,6 +121,8 @@ L = ["# H035 G2 — comprar el lado propuesto tras la disputa UMA (solo entrenam
      f"{b.px.mean():.1%}",
      f"- **PnL medio por acción {f(b.pnl.mean())} c (IC95% cluster evento {f(lo)} … {f(hi)})**; PnL total "
      f"{b.pnl.sum():+.2f} USD por 1 acción/operación",
+     f"- diagnóstico optimista (precio = mediana de compras taker en la ventana, no la regla): "
+     f"{f(b.pnl_med.mean())} c (IC95% {f(ci(b, 'pnl_med')[0])} … {f(ci(b, 'pnl_med')[1])})",
      f"- un mercado por evento (primera disputa): n={len(b1):,}, {f(b1.pnl.mean())} c (IC95% {f(lo1)} … {f(hi1)})",
      f"- costes ×2 (comisión ×2 + deslizamiento extra max(0.01, (p+p_opuesto−1)/2)): {f(b.pnl2.mean())} c "
      f"(IC95% {f(lo2)} … {f(hi2)})",
@@ -126,7 +133,7 @@ L = ["# H035 G2 — comprar el lado propuesto tras la disputa UMA (solo entrenam
      "- por lado propuesto: " + "; ".join(f"idx {s}: n={len(x)}, {f(x.pnl.mean())} c" for s, x in b.groupby("side")),
      "- negRisk: " + "; ".join(f"{k}: n={len(x)}, {f(x.pnl.mean())} c" for k, x in b.groupby("neg_risk")),
      "- por trimestre de disputa: " + "; ".join(
-         f"{k}: n={len(x)}, {f(x.pnl.mean())} c" for k, x in b.groupby(b.d_time.dt.to_period("Q").astype(str))),
+         f"{k}: n={len(x)}, {f(x.pnl.mean())} c" for k, x in b.groupby(b.d_time.dt.tz_localize(None).dt.to_period("Q").astype(str))),
      f"- comisión media {b.rate.mean():.3f}; días de capital (t → closedTime): mediana {b.days.median():.2f}, media {b.days.mean():.2f}",
      f"- **rentabilidad de cartera Σpnl/Σ(capital·días)·365 = {port:+.1%} (IC95% cluster {plo:+.1%} … {phi:+.1%})**; "
      f"costes ×2: {port2:+.1%}; con capital ocioso (banca = máx. capital simultáneo {peak:.2f} USD/acción): {bank:+.1%} anual",
