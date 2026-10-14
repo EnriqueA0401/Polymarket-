@@ -106,16 +106,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     explotable frente al coste de capital.
 - Estado: activa | Gate: G3 (holdout) pendiente | Variantes: 0
 
-### H025 — Favoritos a largo plazo (YES en 0.90–0.98 a 90 días)
-- Fuente: simétrico de H017 (no se miró este lado en H017).
-- Racional: si a largo plazo los longshots están sobrevalorados, los favoritos pueden estar
-  infravalorados (aversión a inmovilizar capital en "casi seguros").
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos de este lado):
-  - Mismo universo, t, fuentes y ventana que H017 (entrenamiento, duración ≥120 d, t=end−90d).
-  - Señal 0.90 ≤ p_t ≤ 0.98 → comprar YES al peor precio real de compra de YES en (t−3d, t].
-  - Mismo criterio: anualizado medio > 6% con IC95% inferior > 4%; y PnL por acción IC > 0.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
@@ -453,3 +443,14 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción: una variante con PnL > 0 e IC95% > 0 y p corregido < 0.05.
 - G2 (reports/h020_g2.md): momentum −8.6 c (IC −17.0…−0.1), reversión −18.0 c (IC −27.4…−7.9); n=90/80.
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H020_apertura_mercados.md | Variantes: 2
+
+### H025 — Favoritos a largo plazo (YES en 0.90–0.98 a 90 días)
+- Fuente: simétrico de H017 (no se miró este lado en H017).
+- Racional: si a largo plazo los longshots están sobrevalorados, los favoritos pueden estar
+  infravalorados (aversión a inmovilizar capital en "casi seguros").
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos de este lado):
+  - Mismo universo, t, fuentes y ventana que H017 (entrenamiento, duración ≥120 d, t=end−90d).
+  - Señal 0.90 ≤ p_t ≤ 0.98 → comprar YES al peor precio real de compra de YES en (t−3d, t].
+  - Mismo criterio: anualizado medio > 6% con IC95% inferior > 4%; y PnL por acción IC > 0.
+- G2 (reports/h025_g2.md): 124 ops, PnL +1.76 c (IC −1.29…+4.15); anualizado 17.5% (IC 2.0…31.3%).
+- Estado: RECHAZADA | Gate: falla G2 (criterio) y G4 (n<150) | Motivo: findings/H025_favoritos_largo_plazo.md | Variantes: 1

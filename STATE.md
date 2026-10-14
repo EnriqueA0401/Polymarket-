@@ -13,7 +13,7 @@
 - H024 — G3 en HOLDOUT (una vez) en curso: `python experiments/h017_g2.py holdout` →
   reports/h024_g3.md (el script se niega a repetir si ya existe el informe).
 - H014 (temperatura vs Open-Meteo): subagente en curso (WIP subido).
-- H020 RECHAZADA (ambas variantes pierden; n<150).
+- H020 RECHAZADA (ambas variantes pierden; n<150). H025 RECHAZADA (favoritos 90d: +1.8 c, IC incluye 0, n=124).
 
 ## Siguiente paso exacto
 1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
@@ -33,4 +33,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 23 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2). Cerradas: 14 (+H022 descartada sin prueba).
+- 24 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H025: 1). Cerradas: 15 (+H022 descartada sin prueba).

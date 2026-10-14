@@ -66,9 +66,9 @@ plo, phi_ = h001.cluster_bootstrap(b, col="pnl") if len(b) > 5 else (np.nan, np.
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
 L = [("# H025 G2 — favoritos YES 0.90–0.98 a 90 días (entrenamiento)" if FAV else None) or ("# H024 G3 — HOLDOUT (una sola ejecución): carry en NO a 90 días + holding rewards" if HOLD
       else "# H017 G2 — carry en NO a 90 días (entrenamiento)"), "", f"- commit {commit}",
-     f"- elegibles {len(t):,}; con precio diario en t {t.p.notna().sum():,}; señal 0.02–0.10: {len(s):,}; "
-     f"con compra real de NO en (t−3d, t]: {len(b):,} ({b.event_id.nunique():,} eventos)",
-     f"- PnL medio {b.pnl.mean()*100:.3f} c/acción (IC95% {plo*100:.3f} … {phi_*100:.3f}); precio medio NO {b.px.mean():.4f}; "
+     f"- elegibles {len(t):,}; con precio diario en t {t.p.notna().sum():,}; señal {'0.90–0.98' if FAV else '0.02–0.10'}: {len(s):,}; "
+     f"con compra real de {'YES' if FAV else 'NO'} en (t−3d, t]: {len(b):,} ({b.event_id.nunique():,} eventos)",
+     f"- PnL medio {b.pnl.mean()*100:.3f} c/acción (IC95% {plo*100:.3f} … {phi_*100:.3f}); precio medio {'YES' if FAV else 'NO'} {b.px.mean():.4f}; "
      f"YES ocurrió en {int((b.y == 1).sum())} ({(b.y == 1).mean():.1%}), anulados {int((b.y == 0.5).sum())}",
      f"- rendimiento anualizado medio {b.ann.mean():.2%} (IC95% cluster {lo:.2%} … {hi:.2%}); días medios {b.days.mean():.0f}",
      f"- criterio: media > 6% y IC inferior > 4% → {'CUMPLE' if (b.ann.mean() > .06 and lo > .04) else 'NO cumple'}",
