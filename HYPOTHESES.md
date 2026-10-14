@@ -65,20 +65,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   mensuales independientes, paro 52 → imposible alcanzar 150 independientes (G4).
 - Estado: DESCARTADA antes de probar (G4 estructuralmente imposible) | Variantes: 0
 
-### H023 — Lead-lag Kalshi → Polymarket
-- Fuente: subagente. Prior bajo (PM suele liderar), exige latencia.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: partidos de NFL, NBA y MLB con mercado de ganador en ambas plataformas,
-    entrenamiento (closedTime PM < 2026-04-12). Emparejamiento por fecha y equipos (tabla
-    versionada, 0 discrepancias de resultado exigidas como en H005).
-  - Señal: movimiento del último precio de Kalshi ≥ 0.05 en una ventana de 2 min (trades
-    públicos de Kalshi) sin movimiento equivalente previo en PM (|ΔPM| < 0.02 en la misma
-    ventana). Solo antes del inicio del partido (pre-game), para evitar latencia en vivo.
-  - Entrada en PM en la dirección del movimiento: peor compra taker real en (t+30 s, t+5 min].
-    Mantener hasta resolución. Comisión vigente.
-  - Predicción: PnL > 0 con IC95% cluster (partido) > 0 y ≥ 150 partidos. Variantes: 1.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H026 — Carry en NO a 90 días solo en mercados NO negRisk (forward)
 - Fuente: subgrupo post hoc del red team de H024 (+3.6 c). Holdout ya consumido para esta
   familia → solo validable en paper trading forward (G7) con rentabilidad de cartera.
@@ -546,3 +532,18 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Clusters = fecha de informe. Predicción: PnL > 0 con IC95% > 0 y ≥ 150 mercados.
 - G2 (reports/h028_g2.md): 250 apuestas, PnL −2.85 c (IC −7.54…+2.67); Brier modelo 0.181 vs PM 0.157.
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H028_batir_beneficios.md | Variantes: 1
+
+### H023 — Lead-lag Kalshi → Polymarket
+- Fuente: subagente. Prior bajo (PM suele liderar), exige latencia.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: partidos de NFL, NBA y MLB con mercado de ganador en ambas plataformas,
+    entrenamiento (closedTime PM < 2026-04-12). Emparejamiento por fecha y equipos (tabla
+    versionada, 0 discrepancias de resultado exigidas como en H005).
+  - Señal: movimiento del último precio de Kalshi ≥ 0.05 en una ventana de 2 min (trades
+    públicos de Kalshi) sin movimiento equivalente previo en PM (|ΔPM| < 0.02 en la misma
+    ventana). Solo antes del inicio del partido (pre-game), para evitar latencia en vivo.
+  - Entrada en PM en la dirección del movimiento: peor compra taker real en (t+30 s, t+5 min].
+    Mantener hasta resolución. Comisión vigente.
+  - Predicción: PnL > 0 con IC95% cluster (partido) > 0 y ≥ 150 partidos. Variantes: 1.
+- G2 (reports/h023_g2.md): 1,324 ops / 636 partidos, PnL −2.56 c (IC −4.98…−0.03); seguimiento +0.54 c.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H023_kalshi_leadlag.md | Variantes: 1

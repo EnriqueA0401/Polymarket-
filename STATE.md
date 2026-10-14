@@ -13,9 +13,8 @@
   2026-10-14 15:42 (data/h026/signals.csv; 104 señales iniciales en 29 eventos). Resolución
   ~enero 2027; evaluar con rentabilidad de CARTERA y censura por evento.
 - Meta-revisión nº2: sin borde explotable con datos públicos tras 17 cerradas.
-- H023 (lead-lag Kalshi→PM pre-partido): G0 escrito, G1/G2 delegados a subagente.
 - H027 RECHAZADA (PM bate al nowcast METAR). H028 RECHAZADA (PM bate a la tasa base).
-  H032 (posts semanales con XTracker) y H023 (Kalshi): subagentes en curso. H029–H032 en cola solo forward (n < 150 en entrenamiento).
+  H023 RECHAZADA (seguimiento PM ~0.5 c < costes). H032 (posts semanales): subagente. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
 ## Siguiente paso exacto
 1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
@@ -31,4 +30,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 28 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1). Cerradas: 19 (+H022 descartada sin prueba).
+- 29 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1). Cerradas: 20 (+H022 descartada sin prueba).
