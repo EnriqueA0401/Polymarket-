@@ -68,7 +68,21 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     la mediana de 3 snapshots (separados ≥ 4 h). Si no → rechazar.
   - Etapa 2 (solo si pasa la 1): paper trading forward con fills pesimistas (trade taker que
     cruza estrictamente nuestro nivel) para medir la selección adversa; criterio G7.
-- Estado: activa | Gate: G0 | Variantes: 0
+- Etapa 1 (data/h013/snap_20261014T0634.csv): 13,876 mercados evaluables; 6,203 con
+  ≥1 USD/día y ≥0.5%/día; mediana 1.5%/día; top ~1000%/día con cuota 100% en libros vacíos.
+  DEMASIADO BUENO → se asume error hasta demostrar lo contrario. Tasas confirmadas en Gamma
+  (clobRewards), pero no hay datos públicos de pagos reales; los libros están vacíos cerca
+  del medio pese a pagar 100–200 USD/día → indicio fuerte de selección adversa o de reglas
+  de pago no modeladas.
+- Etapa 2a (pre-registrada 2026-10-14, antes de ver datos): cota de selección adversa en
+  ENTRENAMIENTO. Mercados cerrados < 2026-04-12 con clobRewards activos (raw Gamma),
+  muestra aleatoria 300 (semilla 0) con mid en [0.10, 0.90] 48 h antes de endDate.
+  Cotizar YES-bid y YES-ask a mid ± v/2 (mid = prices-history fidelity 1 min, solo ≤ t)
+  en la ventana [end−48h, end−24h], tamaño min_size, re-cotizando cada minuto; fill solo
+  si un trade taker cruza estrictamente el nivel; posiciones a resolución. Comparar pérdida
+  por día con la recompensa MÁXIMA posible (tasa diaria × cuota 1). Si pérdida > recompensa
+  máxima en la mediana → rechazar. Si no → etapa 2b forward (G7) con libros vivos.
+- Estado: activa | Gate: G1 (verificación) | Variantes: 0
 
 ## Cerradas
 

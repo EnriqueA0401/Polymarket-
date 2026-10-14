@@ -15,10 +15,9 @@
 1. Comprobar que ambos bucles siguen vivos (`tail -1 data/h002.log data/h010.log`); si no,
    relanzar con `nohup experiments/run_h002.sh &` y `nohup experiments/run_h010.sh &`
    (los reinicios del contenedor los matan).
-2. H012 rechazada. Siguiente: G0 de H013 (programa de recompensas de liquidez: ¿las
-   recompensas diarias compensan la selección adversa de un maker pequeño?). Datos:
-   rewards por mercado (CLOB /rewards o Gamma rewardsMinSize/MaxSpread) + fills
-   pesimistas con trades como en H006.
+2. H013: etapa 1 "demasiado buena" (ver HYPOTHESES.md). Implementar etapa 2a
+   pre-registrada: experiments/h013_2a.py (mercados de entrenamiento con clobRewards,
+   cotización simulada a mid ± v/2 con fills por trades, pérdida/día vs recompensa máxima).
 3. ~2026-10-20: evaluar H002; ~2026-10-21: evaluar H010 (predicciones G0).
 4. Tras 10 hipótesis cerradas (van 8): reports/meta_review.md.
 
