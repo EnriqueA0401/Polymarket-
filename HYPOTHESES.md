@@ -52,6 +52,23 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Quién pierde: quien compra la fecha corta (o vende la larga) sin mirar la escalera.
 - Estado: activa | Gate: G0 | Variantes: 0
 
+### H012 — Sobre/infrarreacción tras saltos de precio
+- Fuente: dinámica temporal (reacción a noticias).
+- Racional: tras una noticia el precio salta; si los minoristas sobrerreaccionan, el salto
+  revierte (pierden los que compran el salto); si la información se incorpora despacio,
+  continúa (pierden los que venden tarde).
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: muestra h001 ∪ h006r, entrenamiento. Serie horaria de prices-history en la
+    ventana [end−8d, cierre].
+  - Evento de salto: |p_h − p_{h−1}| ≥ 0.10 entre dos puntos horarios consecutivos, con
+    0.05 < p_h < 0.95; primer salto por mercado; debe quedar ≥ 24 h hasta endDate.
+  - Entrada en (t+5 min, t+65 min] al peor precio real de compra (Data API).
+    Variante A (seguir): comprar el lado del salto. Variante B (revertir): el contrario.
+  - Mantener hasta resolución; comisión vigente; cluster = evento.
+  - Predicción falsable: una de las dos variantes con PnL > 0 e IC95% > 0. (Por simetría
+    ambas pagan spread; se corrige por 2 pruebas con Holm.)
+- Estado: activa | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
