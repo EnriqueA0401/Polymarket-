@@ -22,7 +22,7 @@
   forward en snapshots de H002 (data/h002/opps_conv.csv).
 - H037 (monotonía en escaleras de strikes): snapshots horarios desde 2026-10-14 22:10
   (`experiments/run_h037.sh`); piloto tras corregir 2 bugs de parseo: 3 pares ≥0.5% (máx 1.4%).
-  Evaluar ~2026-10-21. H035 (disputas UMA): subagente.
+  Evaluar ~2026-10-21. H035 RECHAZADA (lado propuesto gana 35%). H041 (lado del disputante): G2 + G3 holdout.
 - H033 (presidencia ≤ nominación 2028): snapshots cada 6 h (`experiments/run_h033.sh`). Piloto:
   121 pares, máximo +0.29% (anualizado 0.14%) → coherente; evaluar ~2026-11-11. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
@@ -43,4 +43,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 31 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1; H032: 1; H034: 1). Cerradas: 22 (+H022 descartada sin prueba).
+- 32 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1; H032: 1; H034: 1; H035: 1). Cerradas: 23 (+H022 descartada sin prueba).

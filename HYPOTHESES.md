@@ -99,21 +99,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     ≥ 6% en algún snapshot, confirmados leyendo las reglas. Si no → rechazar.
 - Estado: activa (forward) | Gate: G0 | Variantes: 0
 
-### H035 — Ventana de disputa UMA (comprar el lado propuesto durante la disputa)
-- Fuente: subagente (3,377 mercados disputados, 1,804 eventos).
-- Racional: tras una disputa, el lado propuesto puede quedar infravalorado por pánico o por
-  aversión a la incertidumbre de reglas. Pierde quien vende durante la disputa.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: mercados de entrenamiento con disputa (umaResolutionStatuses contiene
-    "disputed"). Hora de disputa y precio propuesto desde logs on-chain del Optimistic Oracle
-    (Polygon; eventos DisputePrice/ProposePrice). Sin hora de disputa fiable → inviable.
-  - t = hora de la (primera) disputa + 30 min. Lado = el propuesto originalmente.
-  - Entrada = peor compra taker real de ese lado en (t, t+2 h]; solo si precio ≤ 0.95.
-  - Hasta resolución; comisión vigente; clusters = evento.
-  - Predicción: PnL > 0 con IC95% > 0 y ≥ 150 eventos; reportar tasa de reversión
-    (resolución ≠ propuesta) y rentabilidad de cartera.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H036 — Conversión NO→YES instantánea en negRisk (re-especificación de H002-B)
 - Fuente: subagente. Si Σ bids YES de los otros resultados > precio de NO de uno + costes,
   comprar NO, convertir (adapter) y vender YES al instante: sin capital bloqueado.
@@ -178,6 +163,22 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción: acierto > 55.6% (pago 80%) con IC95% por día > 55.6%. Si no → rechazar y
     documentar que el valor esperado es negativo por construcción.
   - (Restricciones geográficas no se evalúan por decisión del usuario; foco en la señal.)
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H041 — Comprar el lado del DISPUTANTE tras una disputa UMA (derivada de H035)
+- Fuente: H035 (en entrenamiento el lado propuesto ganó solo 35% tras la disputa).
+- AVISO de snooping: diseñada tras ver H035 en entrenamiento → G2 en entrenamiento (cuenta como
+  prueba) y veredicto final SOLO en el HOLDOUT (G3), una vez.
+- Racional: un disputante arriesga su fianza; si disputa, suele tener información o razón sobre
+  las reglas. El mercado puede no descontarlo del todo. Pierden quienes compran el lado propuesto
+  por inercia tras la disputa.
+- Protocolo (fijado 2026-10-14, antes de calcular este lado):
+  - Igual que H035 (mismos mercados, mismas horas de disputa on-chain, t = disputa + 30 min),
+    pero comprando el token OPUESTO al propuesto: peor compra taker real en (t, t+2 h];
+    solo si precio ≤ 0.95. Hasta resolución; comisión vigente; clusters = evento.
+  - Éxito G2: PnL > 0 con IC95% > 0, costes×2 > 0, sin top-5 > 0.
+  - G3 (holdout, una vez): escanear logs de disputa desde 2026-04-12; mismo código. Éxito: PnL > 0
+    con IC95% > 0 y ≥ 150 eventos entre G2+G3 independientes; rentabilidad de cartera reportada.
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ## Cerradas
@@ -665,3 +666,19 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     observada ≥ 90% en las operaciones (si no, la identificación falla).
 - G2 (reports/h034_g2.md): 89 entradas / 65 series; anulación 0.21 (<0.90); PnL −1.9 c (IC −6.9…+3.8).
 - Estado: RECHAZADA | Gate: falla G2 (identificación) y G4 (n, capacidad) | Motivo: findings/H034_esports_props_5050.md | Variantes: 1
+
+### H035 — Ventana de disputa UMA (comprar el lado propuesto durante la disputa)
+- Fuente: subagente (3,377 mercados disputados, 1,804 eventos).
+- Racional: tras una disputa, el lado propuesto puede quedar infravalorado por pánico o por
+  aversión a la incertidumbre de reglas. Pierde quien vende durante la disputa.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados de entrenamiento con disputa (umaResolutionStatuses contiene
+    "disputed"). Hora de disputa y precio propuesto desde logs on-chain del Optimistic Oracle
+    (Polygon; eventos DisputePrice/ProposePrice). Sin hora de disputa fiable → inviable.
+  - t = hora de la (primera) disputa + 30 min. Lado = el propuesto originalmente.
+  - Entrada = peor compra taker real de ese lado en (t, t+2 h]; solo si precio ≤ 0.95.
+  - Hasta resolución; comisión vigente; clusters = evento.
+  - Predicción: PnL > 0 con IC95% > 0 y ≥ 150 eventos; reportar tasa de reversión
+    (resolución ≠ propuesta) y rentabilidad de cartera.
+- G2 (reports/h035_g2.md): 240 ops / 217 eventos; lado propuesto gana 35% a precio 0.48; PnL −13.8 c (IC −18.5…−9.1).
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H035_disputas_uma.md | Variantes: 1
