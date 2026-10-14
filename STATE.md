@@ -15,10 +15,8 @@
 1. Comprobar que ambos bucles siguen vivos (`tail -1 data/h002.log data/h010.log`); si no,
    relanzar con `nohup experiments/run_h002.sh &` y `nohup experiments/run_h010.sh &`
    (los reinicios del contenedor los matan).
-2. Mientras miden: proponer nuevas hipótesis (cola casi vacía): p.ej. H012 reacción a
-   noticias en mercados políticos (sobre/infrarreacción tras saltos ≥10 c, con trades
-   reales), H013 programa de recompensas de liquidez (¿rewards > selección adversa?).
-   Escribir G0 de la más barata.
+2. H012 (G0 escrito): `python experiments/h012_g2.py` → reports/h012_g2.md (en curso
+   desde 05:00 UTC 14/10). Luego: H013 recompensas de liquidez (¿rewards > selección adversa?).
 3. ~2026-10-20: evaluar H002; ~2026-10-21: evaluar H010 (predicciones G0).
 4. Tras 10 hipótesis cerradas (van 7): reports/meta_review.md.
 
