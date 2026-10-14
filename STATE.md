@@ -10,17 +10,14 @@
 - H002 — snapshots negRisk: `experiments/run_h002.sh` (evaluar ~2026-10-20).
 - H010 — escaleras de fechas: `experiments/run_h010.sh` (evaluar ~2026-10-21).
   (Relanzados 2026-10-14 10:41 tras hueco 06:19–10:41 por reinicio.)
-- H024 — ★ PRIMER CANDIDATO: G3 (holdout) SUPERADO: +1.37 c/acción, anualizado 13.9%
-  (IC 6.9–21.2%). En curso G4/G5: robustez, doble implementación y red team (subagentes).
-  Detalle por operación: data/h024_trades.parquet y data/h017_trades.parquet (`holdout extract`).
+- H024 RECHAZADA en G4/G5 tras red team (anualizado de cartera 6.6%; censura; costes×2).
+  Sesgo real pero no explotable. Subgrupo post hoc → H026 (solo forward).
 - H014 (temperatura vs Open-Meteo): subagente en curso (WIP subido).
 - H020 RECHAZADA (ambas variantes pierden; n<150). H025 RECHAZADA (favoritos 90d: +1.8 c, IC incluye 0, n=124).
 
 ## Siguiente paso exacto
 1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
-2. H024: completar G4 (costes×2, vecinos de parámetros en entrenamiento, sin top-5, tema,
-   ≥150 eventos OOS ✓) y G5 (corrección por 24 pruebas; Brier; CLV); responder por escrito al
-   red team (reports/h024_redteam.md); si pasa → G6 (liquidez/capacidad) y reports/CANDIDATE_H024.md.
+2. Considerar H026 como paper trading forward (barato: snapshots diarios de mercados largos).
 3. Integrar H014 cuando termine (revisar código/tests, informes, findings).
 4. Cola restante: H019 (UMA, baja prioridad), H021 (combinatorio, coste alto), H023 (lead-lag
    Kalshi, prior bajo), H007/H009 (solo forward). Si fallan H014/H020/H024 → meta-revisión
@@ -36,4 +33,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 24 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H025: 1). Cerradas: 15 (+H022 descartada sin prueba).
+- 25 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1). Cerradas: 16 (+H022 descartada sin prueba).

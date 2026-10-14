@@ -16,3 +16,7 @@
 
 - LECCIÓN H003 (2026-10-14): prices-history no es ejecutable en mercados poco líquidos
   (zona media: precio real de NO ≈ 0.09 peor que 1−p). Usar trades reales o libros vivos.
+- LECCIÓN H024 (2026-10-14): la rentabilidad anualizada se mide a nivel de cartera
+  (Σpnl / Σ(capital·días) · 365, incluyendo capital ocioso), nunca como media de anualizados
+  por operación. En holdout, excluir eventos con endDate o mercados hermanos sin resolver al
+  corte de datos (censura favorable).

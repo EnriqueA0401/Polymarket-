@@ -87,30 +87,10 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 ### H023 — Lead-lag Kalshi → Polymarket
 - Fuente: subagente. Prior bajo (PM suele liderar), exige latencia. Estado: pendiente | Variantes: 0
 
-### H024 — Carry en NO a largo plazo + holding rewards (derivada de H017)
-- Fuente: H017 (borde por acción +1.8 c significativo pero anualizado insuficiente).
-- AVISO de snooping: se diseña tras ver H017 en entrenamiento → el veredicto debe salir del
-  HOLDOUT (G3), una sola vez, y cuenta como prueba nueva en el contador.
-- Idea: limitar a mercados con holdingRewardsEnabled=true (campo de Gamma, 4% APY documentado)
-  y sumar esa recompensa prorrateada; carteras diversificadas por tema.
-- Protocolo (fijado 2026-10-14; G3 = HOLDOUT, UNA sola ejecución):
-  - Código: experiments/h017_g2.py parametrizado; primero se reproduce H017 en entrenamiento
-    (mismos números = validación del código), después UNA ejecución en holdout.
-  - Universo holdout: mercados con closedTime ≥ 2026-04-12, duración ≥ 120 d, abiertos en
-    end−90d, end ≤ fecha de datos. Misma señal (0.02 ≤ p ≤ 0.10 en end−90d), misma entrada
-    (peor compra real de NO en (t−3d, t]), misma comisión.
-  - Holding reward: +4%/año prorrateado sobre el precio solo si holdingRewardsEnabled=true en
-    Gamma (valor observado tras el cierre; supuesto declarado). Se reportan ambos (con y sin).
-  - Éxito: (a) PnL por acción > 0 con IC95% > 0 en holdout; y (b) anualizado medio CON holding
-    reward > 6% con IC95% inferior > 4%. Si (a) sí y (b) no → sesgo confirmado pero no
-    explotable frente al coste de capital.
-- G3 HOLDOUT (reports/h024_g3.md, una ejecución): 471 ops / 231 eventos; PnL +1.37 c/acción
-  (IC95% +0.07…+2.67); anualizado medio 13.90% (IC 6.91…21.20%); con holding reward 13.95%
-  (solo 5 mercados lo tenían). Criterios (a) y (b): CUMPLE.
-- En curso (2026-10-14): G4/G5 — rentabilidad de cartera (capital×tiempo), costes×2, sin
-  top-5, concentración por tema, vecinos de parámetros (en ENTRENAMIENTO), corrección por
-  las 24 pruebas totales; doble implementación independiente y red team (subagentes).
-- Estado: activa | Gate: G3 superado; G4/G5 en curso | Variantes: 1
+### H026 — Carry en NO a 90 días solo en mercados NO negRisk (forward)
+- Fuente: subgrupo post hoc del red team de H024 (+3.6 c). Holdout ya consumido para esta
+  familia → solo validable en paper trading forward (G7) con rentabilidad de cartera.
+- Estado: pendiente (forward) | Variantes: 0
 
 ## Cerradas
 
@@ -460,3 +440,30 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Mismo criterio: anualizado medio > 6% con IC95% inferior > 4%; y PnL por acción IC > 0.
 - G2 (reports/h025_g2.md): 124 ops, PnL +1.76 c (IC −1.29…+4.15); anualizado 17.5% (IC 2.0…31.3%).
 - Estado: RECHAZADA | Gate: falla G2 (criterio) y G4 (n<150) | Motivo: findings/H025_favoritos_largo_plazo.md | Variantes: 1
+
+### H024 — Carry en NO a largo plazo + holding rewards (derivada de H017)
+- Fuente: H017 (borde por acción +1.8 c significativo pero anualizado insuficiente).
+- AVISO de snooping: se diseña tras ver H017 en entrenamiento → el veredicto debe salir del
+  HOLDOUT (G3), una sola vez, y cuenta como prueba nueva en el contador.
+- Idea: limitar a mercados con holdingRewardsEnabled=true (campo de Gamma, 4% APY documentado)
+  y sumar esa recompensa prorrateada; carteras diversificadas por tema.
+- Protocolo (fijado 2026-10-14; G3 = HOLDOUT, UNA sola ejecución):
+  - Código: experiments/h017_g2.py parametrizado; primero se reproduce H017 en entrenamiento
+    (mismos números = validación del código), después UNA ejecución en holdout.
+  - Universo holdout: mercados con closedTime ≥ 2026-04-12, duración ≥ 120 d, abiertos en
+    end−90d, end ≤ fecha de datos. Misma señal (0.02 ≤ p ≤ 0.10 en end−90d), misma entrada
+    (peor compra real de NO en (t−3d, t]), misma comisión.
+  - Holding reward: +4%/año prorrateado sobre el precio solo si holdingRewardsEnabled=true en
+    Gamma (valor observado tras el cierre; supuesto declarado). Se reportan ambos (con y sin).
+  - Éxito: (a) PnL por acción > 0 con IC95% > 0 en holdout; y (b) anualizado medio CON holding
+    reward > 6% con IC95% inferior > 4%. Si (a) sí y (b) no → sesgo confirmado pero no
+    explotable frente al coste de capital.
+- G3 HOLDOUT (reports/h024_g3.md, una ejecución): 471 ops / 231 eventos; PnL +1.37 c/acción
+  (IC95% +0.07…+2.67); anualizado medio 13.90% (IC 6.91…21.20%); con holding reward 13.95%
+  (solo 5 mercados lo tenían). Criterios (a) y (b): CUMPLE.
+- En curso (2026-10-14): G4/G5 — rentabilidad de cartera (capital×tiempo), costes×2, sin
+  top-5, concentración por tema, vecinos de parámetros (en ENTRENAMIENTO), corrección por
+  las 24 pruebas totales; doble implementación independiente y red team (subagentes).
+- Red team (reports/h024_redteam.md): anualización de cartera 6.6%; sin censura +1.18 c (IC −0.27…+2.57);
+  costes×2 +0.71 c (IC incluye 0); p=0.039 vs 0.002 corregido.
+- Estado: RECHAZADA | Gate: falla G4/G5 | Motivo: findings/H024_carry_no_holdout.md | Variantes: 1
