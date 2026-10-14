@@ -47,7 +47,22 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   (movimiento browniano con vol realizada) en cada instante y compararla con el precio
   ejecutable de PM. Quién pierde: minoristas que apuestan a dirección con precio lento.
   Riesgo: latencia (los bots ya arbitran) y comisión cripto 0.07.
-- Estado: pendiente (prioridad alta: datos gratis, n enorme) | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-14, antes de descargar klines o trades):
+  - Series: btc/eth × {5m, 15m, hourly}. Entrenamiento (closedTime < 2026-04-12): muestra
+    aleatoria (semilla 0) de 3,000 mercados por serie (todas si hay menos).
+  - Regla de resolución leída de la descripción de cada mercado: (a) TWAP Chainlink de la
+    ventana ≥ precio inicial; (b) vela (cierre ≥ apertura). Proxy: klines 1m de Binance
+    spot (data-api.binance.vision). G1: concordancia proxy vs resolución por serie/mes;
+    si < 97% en una serie, esa serie se excluye.
+  - Decisión en s = mitad de la ventana. Solo minutos de Binance cerrados antes de s.
+    σ = desv. típ. de retornos log 1m de los 60 min previos.
+    TWAP: E = w·A + (1−w)·S, sd = (1−w)·S·σ·sqrt(τ/3) (τ en min restantes), P = Φ((E−S0)/sd).
+    Vela: P = Φ(ln(S/S0)/(σ·sqrt(τ))).
+  - Ejecución: peor compra taker real del token elegido en (s+30 s, s+90 s]; comisión 0.07
+    (o la del mercado). Señal: P_justa − precio − comisión ≥ 0.03 (YES o NO).
+  - Predicción falsable: PnL medio > 0 con IC95% > 0, clusters = hora de inicio de ventana
+    (BTC y ETH en la misma ventana correlacionan). Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ## Cerradas
 
