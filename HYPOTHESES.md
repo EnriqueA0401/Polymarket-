@@ -71,24 +71,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción falsable: PnL > 0 con IC95% cluster (ciudad-fecha) > 0. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H016 — Mercados cripto de barrera ("reach/dip X") vs modelo de volatilidad realizada
-- Fuente: subagente de investigación (fc26.ifca.ai market-efficiency paper; AAU tesis BTC).
-- Racional: minoristas valoran "tocar X antes de D" como "acabar sobre X" (ignoran el
-  principio de reflexión) → barreras mal valoradas, sobre todo al abrir, cerca del
-  vencimiento y en fin de semana. Pierde el minorista que compra barreras lejanas.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: mercados binarios "Will <BTC|ETH> reach/hit/dip to $X ..." (preguntas con
-    reach/hit/dip/fall to + importe), entrenamiento. Barrera y dirección por regex; vencimiento
-    = endDate. Precio de referencia: Binance spot 1m (proxy; G1 = concordancia con resolución
-    ≥ 97% o se excluye la serie).
-  - En t = endDate − 3d (si el mercado sigue abierto y la barrera no se ha tocado hasta t):
-    P_toque = 2·Φ(−|ln(X/S_t)|/(σ·√τ)) (reflexión, sin deriva), σ = vol realizada 1m de los 7
-    días previos, τ en minutos.
-  - Entrada = peor compra taker real en (t−1h, t] del lado con ventaja; señal edge ≥ 0.05 neta
-    de comisión. Fin de semana = estrato prefijado (se reporta, no es variante).
-  - Predicción: PnL > 0 con IC95% cluster (día de vencimiento × activo) > 0. Variantes: 1.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
 - Fuente: subagente (guías: el YES está sobrevalorado frente a la tasa base). 10,321
   mercados de entrenamiento (pregunta con "say"/"mention").
@@ -412,3 +394,22 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     el universo elegible completo (6,041). Sin ver precios ni resultados.
 - G2 (reports/h017_g2.md): 936 ops; PnL +1.79 c (IC +0.86…+2.62); anualizado 7.87% (IC −5.81…+17.93%).
 - Estado: RECHAZADA | Gate: falla G2 (criterio anualizado) | Motivo: findings/H017_carry_no_largo_plazo.md | Variantes: 1
+
+### H016 — Mercados cripto de barrera ("reach/dip X") vs modelo de volatilidad realizada
+- Fuente: subagente de investigación (fc26.ifca.ai market-efficiency paper; AAU tesis BTC).
+- Racional: minoristas valoran "tocar X antes de D" como "acabar sobre X" (ignoran el
+  principio de reflexión) → barreras mal valoradas, sobre todo al abrir, cerca del
+  vencimiento y en fin de semana. Pierde el minorista que compra barreras lejanas.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios "Will <BTC|ETH> reach/hit/dip to $X ..." (preguntas con
+    reach/hit/dip/fall to + importe), entrenamiento. Barrera y dirección por regex; vencimiento
+    = endDate. Precio de referencia: Binance spot 1m (proxy; G1 = concordancia con resolución
+    ≥ 97% o se excluye la serie).
+  - En t = endDate − 3d (si el mercado sigue abierto y la barrera no se ha tocado hasta t):
+    P_toque = 2·Φ(−|ln(X/S_t)|/(σ·√τ)) (reflexión, sin deriva), σ = vol realizada 1m de los 7
+    días previos, τ en minutos.
+  - Entrada = peor compra taker real en (t−1h, t] del lado con ventaja; señal edge ≥ 0.05 neta
+    de comisión. Fin de semana = estrato prefijado (se reporta, no es variante).
+  - Predicción: PnL > 0 con IC95% cluster (día de vencimiento × activo) > 0. Variantes: 1.
+- G2 (reports/h016_g2.md): 52 apuestas, PnL −5.56 c (IC −14.6…+4.4); Brier modelo 0.0835 vs PM 0.0770.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H016_barreras_cripto.md | Variantes: 1

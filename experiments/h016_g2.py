@@ -99,6 +99,18 @@ if len(m):
 lo, hi = h001.cluster_bootstrap(b, col="pnl", cluster="cl") if len(b) else (np.nan, np.nan)
 ok = len(b) > 0 and b.pnl.mean() > 0 and lo > 0
 L += ["## Veredicto G2", "",
-      f"- Predicción (PnL > 0 con IC95% cluster > 0): {'CUMPLIDA' if ok else 'NO cumplida'}"]
+      f"- Predicción (PnL > 0 con IC95% cluster > 0): {'CUMPLIDA' if ok else 'NO cumplida'}",
+      f"- Mercados independientes con apuesta: {b.cl.nunique()} clusters (< 150 exigidos en G4 aunque el PnL fuera positivo).", "",
+      "## Concreciones del protocolo (fijadas antes de ver resultados de G2; pesimistas o neutrales)", "",
+      "- Entrenamiento = endDate Y closedTime < 2026-04-12 (excluye mercados cerrados pronto por toque cuyo vencimiento cae en holdout).",
+      "- Dirección = regla de la descripción (High → arriba, Low → abajo); el texto solo si falta (13 'reach' eran 'Low ≤ X').",
+      "- 'Barrera no tocada hasta t' = ninguna vela 1m Binance cerrada en t con High ≥ X / Low ≤ X desde startDate del mercado "
+      "(la ventana oficial puede empezar antes de la creación; un toque así suele cerrar el mercado antes de t → excluido por closedTime ≤ t).",
+      "- S_t = cierre de la última vela 1m cerrada en t (≤ 6 min de antigüedad); σ = desv. típica de log-retornos 1m de cierres en [t−7d, t) con cobertura ≥ 90%.",
+      "- τ = endDate − t = 4320 min (protocolo), aunque en btc-monthly-prices la ventana real acaba ~16 h después de endDate.",
+      "- Comisión: rate del feeSchedule (0.07 si falta) × p(1−p), ignorando 'exponent' (2 en algunos mercados → la real es menor; pesimista).",
+      "- Costes ×2: comisión ×2 y slippage adicional = max(0.01, peor − mediana de compras del lado en (t−1h, t]).",
+      "- Clusters = día UTC de endDate × activo. Fin de semana = t en sábado/domingo hora ET (en las series semanales t cae en jueves/viernes, por eso el estrato es casi vacío).",
+      "- Anulados (y = 0.5) pagan 0.5. Sin trades en (t−1h, t] → no se opera (no se supone precio)."]
 open(os.path.join(ROOT, "reports", "h016_g2.md"), "w").write("\n".join(L) + "\n")
 print("\n".join(L))

@@ -73,7 +73,7 @@ def om_path(st, a, b):
     return os.path.join(OM, f"{st}_{a}_{b}.json")
 
 
-def fetch_om(st, a, b, tries=400):
+def fetch_om(st, a, b, tries=100000):
     """Open-Meteo Previous Runs (horario, UTC) para la estación `st` en [a, b]. Caché en disco."""
     path = om_path(st, a, b)
     if os.path.exists(path):
@@ -93,7 +93,7 @@ def fetch_om(st, a, b, tries=400):
             print(st, a, r.status_code, flush=True)
         except requests.RequestException as e:
             print(st, a, "exc", flush=True)
-        time.sleep(4)
+        time.sleep(15)
     return None
 
 
@@ -271,10 +271,12 @@ def main():
     for c, g in w.groupby("city"):
         L.append(f"| {c} | {len(g)} | {g.fc_in.mean():.0%} | {g.err.mean():+.2f} | {g.err.std():.2f} |")
     # --- t de decisión vs creación del mercado
-    st_ok = (m.start.astype("int64") // 10**6 <= m.t_dec * 1000)
+    tdec = pd.to_datetime(m.t_dec, unit="s", utc=True)
+    st_ok = m.start <= tdec
     L += ["", "## Momento de decisión", "",
           f"- t = 12:00 UTC del día anterior. Mercados creados (startDate) antes de t: {st_ok.mean():.1%}; "
-          f"cerrados antes de t: {(m.closed_time.astype('int64') // 10**6 < m.t_dec * 1000).mean():.1%}",
+          f"cerrados antes de t: {(m.closed_time < tdec).mean():.1%}; mediana de horas entre t y el cierre: "
+          f"{((m.closed_time - tdec).dt.total_seconds() / 3600).median():.1f}",
           "", "## Sustituciones respecto al protocolo", "",
           "1. `previous_day1` = valor predicho 24 h antes de cada hora válida. Para horas del día objetivo posteriores a "
           "t + 18 h (24 h − 6 h de publicación) esa predicción se emitió después de t → lookahead. Por hora se usa el menor "
