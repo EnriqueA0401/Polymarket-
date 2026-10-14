@@ -14,7 +14,8 @@
   ~enero 2027; evaluar con rentabilidad de CARTERA y censura por evento.
 - Meta-revisión nº2: sin borde explotable con datos públicos tras 17 cerradas.
 - H023 (lead-lag Kalshi→PM pre-partido): G0 escrito, G1/G2 delegados a subagente.
-- H027 RECHAZADA (PM bate al nowcast METAR). H028 (batir beneficios vs historial): subagente. H029–H032 en cola solo forward (n < 150 en entrenamiento).
+- H027 RECHAZADA (PM bate al nowcast METAR). H028 (batir beneficios) y H032 (posts semanales
+  con XTracker): subagentes en curso. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
 ## Siguiente paso exacto
 1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
