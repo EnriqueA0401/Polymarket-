@@ -87,6 +87,61 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     se cuentan y reportan todos los casos en que el "ganador" no cobra.
 - Estado: activa | Gate: G0 | Variantes: 0
 
+### H016 — Mercados cripto de barrera ("reach/dip X") vs modelo de volatilidad realizada
+- Fuente: subagente de investigación (fc26.ifca.ai market-efficiency paper; AAU tesis BTC).
+- Racional: minoristas valoran "tocar X antes de D" como "acabar sobre X" (ignoran el
+  principio de reflexión) → barreras mal valoradas, sobre todo al abrir, cerca del
+  vencimiento y en fin de semana. Pierde el minorista que compra barreras lejanas.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios "Will <BTC|ETH> reach/hit/dip to $X ..." (preguntas con
+    reach/hit/dip/fall to + importe), entrenamiento. Barrera y dirección por regex; vencimiento
+    = endDate. Precio de referencia: Binance spot 1m (proxy; G1 = concordancia con resolución
+    ≥ 97% o se excluye la serie).
+  - En t = endDate − 3d (si el mercado sigue abierto y la barrera no se ha tocado hasta t):
+    P_toque = 2·Φ(−|ln(X/S_t)|/(σ·√τ)) (reflexión, sin deriva), σ = vol realizada 1m de los 7
+    días previos, τ en minutos.
+  - Entrada = peor compra taker real en (t−1h, t] del lado con ventaja; señal edge ≥ 0.05 neta
+    de comisión. Fin de semana = estrato prefijado (se reporta, no es variante).
+  - Predicción: PnL > 0 con IC95% cluster (día de vencimiento × activo) > 0. Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H017 — Carry en NO de eventos improbables a largo plazo
+- Fuente: subagente (holding rewards 4% APY en docs; "Nothing Ever Happens"). H001 solo
+  probó 24h y 7d.
+- Racional: compradores de lotería pagan de más por YES en eventos lejanos e improbables;
+  quien vende (compra NO) cobra una prima + holding reward; coste: capital inmovilizado.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: muestra h001 ∪ h006r NO sirve (solo ventana de 8 días) → nueva muestra:
+    mercados de entrenamiento con duración ≥ 120 días (start ≤ end − 120d), aleatoria por
+    evento (sha256 mod 1000 < 100). Precio YES en t = end − 90d por prices-history diario.
+  - Señal: 0.02 ≤ p_t ≤ 0.10 → comprar NO al peor precio real de compra de NO en (t−3d, t].
+  - PnL = pago − precio − comisión (+ holding reward 4%/año prorrateado SOLO si la categoría
+    lo tenía documentado; si no, 0 — pesimista). Rendimiento anualizado por días hasta cierre;
+    comparar con 4%/año (letra del Tesoro aprox.).
+  - Clusters = evento; además informe por tema (país/persona) por correlación de colas.
+  - Predicción: rendimiento anualizado medio > 4% + 2 pp con IC95% > 4%. Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
+- Fuente: subagente (guías sin backtest). Test barato: calibración solo en esta categoría con
+  peores precios reales. Estado: pendiente | Variantes: 0
+
+### H019 — Ventana de propuesta UMA (comprar el lado propuesto antes del settle)
+- Fuente: subagente; generaliza H015. Requiere eventos ProposePrice on-chain (Polygon).
+  Esperar resultado de H015. Estado: pendiente | Variantes: 0
+
+### H020 — Apertura de mercados nuevos (deriva de la primera hora)
+- Fuente: subagente (IMDEA, liquidez inicial). Estado: pendiente | Variantes: 0
+
+### H021 — Arbitraje combinatorio (candidato vs partido, estado vs nacional, moneyline vs spread)
+- Fuente: subagente (arXiv 2508.03474). Coste alto; ventanas de segundos. Estado: pendiente | Variantes: 0
+
+### H022 — Macro (PIB, IPC, Fed) vs nowcasts oficiales (GDPNow, Cleveland Fed)
+- Fuente: subagente. Pocos eventos independientes (riesgo de no llegar a 150). Estado: pendiente | Variantes: 0
+
+### H023 — Lead-lag Kalshi → Polymarket
+- Fuente: subagente. Prior bajo (PM suele liderar), exige latencia. Estado: pendiente | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
