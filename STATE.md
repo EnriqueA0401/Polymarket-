@@ -17,6 +17,9 @@
   H023 RECHAZADA (seguimiento PM ~0.5 c < costes). H032 RECHAZADA (PM bate al modelo; n=55).
 - H034 RECHAZADA (props esports 50-50: no identificable en t). H036 (conversión NO→YES) medida
   forward en snapshots de H002 (data/h002/opps_conv.csv).
+- H037 (monotonía en escaleras de strikes): snapshots horarios desde 2026-10-14 22:10
+  (`experiments/run_h037.sh`); piloto tras corregir 2 bugs de parseo: 3 pares ≥0.5% (máx 1.4%).
+  Evaluar ~2026-10-21. H035 (disputas UMA): subagente.
 - H033 (presidencia ≤ nominación 2028): snapshots cada 6 h (`experiments/run_h033.sh`). Piloto:
   121 pares, máximo +0.29% (anualizado 0.14%) → coherente; evaluar ~2026-11-11. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 

@@ -128,8 +128,15 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ### H037 — Monotonía en escaleras de strikes ("above/reach K", mismo endDate)
-- Fuente: subagente. YES(K bajo) + NO(K alto) < 1 → arbitraje. Solo forward (extender h010).
-  Prior 5% (ventanas de segundos). Estado: pendiente | Variantes: 0
+- Fuente: subagente. YES(K bajo) + NO(K alto) < 1 → arbitraje (paga ≥ 1 en todo escenario
+  para "above/reach"; para "below/dip" se invierte el orden). Prior 5%.
+- Protocolo G0 forward (fijado 2026-10-14, antes de ver datos):
+  - Eventos abiertos NO negRisk; mercados del mismo evento con el mismo endDate cuya pregunta
+    contiene "above/reach/hit" (o "below/dip/fall") y un importe $K; misma plantilla salvo K.
+  - Para cada par K1 < K2: coste de 50 YES(K1) + 50 NO(K2) (above/reach) o 50 YES(K2) + 50
+    NO(K1) (below/dip) barriendo asks + comisión. Retorno = (50 − coste)/coste.
+  - Snapshots cada hora durante 7 días. Éxito: ≥ 5 eventos distintos/semana con retorno ≥ 0.5%.
+- Estado: activa (forward) | Gate: G0 | Variantes: 0
 
 ## Cerradas
 
