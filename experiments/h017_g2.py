@@ -12,8 +12,10 @@ from pmq.universe import DATA
 H = pd.Timedelta("90D")
 HOLD = len(sys.argv) > 1 and sys.argv[1] == "holdout"
 FAV = len(sys.argv) > 1 and sys.argv[1] == "fav"          # H025: lado favorito (YES 0.90–0.98)
-if HOLD and os.path.exists(os.path.join(ROOT, "reports", "h024_g3.md")):
-    sys.exit("El holdout de H024 ya se usó: no se repite (CLAUDE.md G3).")
+EXTRACT = len(sys.argv) > 2 and sys.argv[2] == "extract"
+if HOLD and os.path.exists(os.path.join(ROOT, "reports", "h024_g3.md")) and not EXTRACT:
+    sys.exit("El holdout de H024 ya se usó: no se repite (CLAUDE.md G3). Solo 'holdout extract' "
+             "re-ejecuta EXACTAMENTE el mismo cálculo para guardar el detalle y verifica que coincide.")
 u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"),
                     columns=["id", "condition_id", "token_yes", "event_id", "y", "start", "end", "closed_time",
                              "enable_ob", "fee_schedule", "category", "question"])
@@ -77,5 +79,12 @@ L = [("# H025 G2 — favoritos YES 0.90–0.98 a 90 días (entrenamiento)" if FA
         f"- H024 (a) PnL>0 e IC>0: {'SÍ' if plo > 0 else 'NO'}; (b) anualizado con HR >6% e IC inf >4%: "
         f"{'SÍ' if (b.ann_hr.mean() > .06 and lo2 > .04) else 'NO'}"] if HOLD else []),
      "", "## Por categoría", "", b.groupby(b.category.fillna("NA")).agg(n=("pnl", "size"), pnl=("pnl", "mean"), ann=("ann", "mean")).round(4).to_markdown()]
-open(os.path.join(ROOT, "reports", "h025_g2.md" if FAV else "h024_g3.md" if HOLD else "h017_g2.md"), "w").write("\n".join(L) + "\n")
+tag = "h025" if FAV else "h024" if HOLD else "h017"
+b.to_parquet(os.path.join(DATA, f"{tag}_trades.parquet"))
+if EXTRACT:
+    prev = open(os.path.join(ROOT, "reports", "h024_g3.md")).read().splitlines()
+    assert prev[3:9] == L[3:9], "la re-ejecución NO coincide con el informe original"
+    print("EXTRACT OK: coincide con reports/h024_g3.md")
+else:
+    open(os.path.join(ROOT, "reports", "h025_g2.md" if FAV else "h024_g3.md" if HOLD else "h017_g2.md"), "w").write("\n".join(L) + "\n")
 print("\n".join(L[:7]))
