@@ -120,6 +120,9 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     comparar con 4%/año (letra del Tesoro aprox.).
   - Clusters = evento; además informe por tema (país/persona) por correlación de colas.
   - Predicción: rendimiento anualizado medio > 4% + 2 pp con IC95% > 4%. Variantes: 1.
+  - ENMIENDA (2026-10-14, antes de descargar precios): solo 6,041 mercados de entrenamiento
+    cumplen duración ≥120d y abiertos en end−90d; la muestra 10% (495) es inviable → se usa
+    el universo elegible completo (6,041). Sin ver precios ni resultados.
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ### H018 — Mercados de "mención" (¿dirá X la palabra Y?)
