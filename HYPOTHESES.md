@@ -52,6 +52,41 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Quién pierde: quien compra la fecha corta (o vende la larga) sin mirar la escalera.
 - Estado: activa | Gate: G0 | Variantes: 0
 
+### H014 — Mercados de temperatura máxima diaria vs pronóstico meteorológico
+- Fuente: fuentes externas (modelos de pronóstico). Mercados "highest temperature in
+  <ciudad> be <N>° on <fecha>" (eventos negRisk por tramos), muy minoristas.
+- Racional: el pronóstico numérico a 1 día es muy informativo; si el precio de los tramos
+  no lo refleja, hay borde. Pierden minoristas que apuestan por intuición.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: mercados binarios de temperatura máxima diaria (tramos exactos, "o más",
+    "o menos"), entrenamiento (closedTime < 2026-04-12).
+  - Pronóstico: Open-Meteo Previous Runs API, temperature_2m_max con lead de 1 día
+    (previous_day1) en las coordenadas de la ciudad → emitido ≥ 1 día antes (sin lookahead).
+  - Observado = tramo que resolvió YES en el evento.
+  - Modelo de error: normal por ciudad (media y sd de observado − pronóstico) estimado en la
+    PRIMERA mitad temporal del entrenamiento; evaluación solo en la SEGUNDA mitad.
+  - Prob. del tramo según su semántica (redondeo al entero; ≥N; ≤N).
+  - t = 12:00 UTC del día anterior a la fecha objetivo. Precio = peor compra taker real en
+    (t−1h, t]. Señal: prob − precio − comisión ≥ 0.05 (YES o NO).
+  - Predicción falsable: PnL > 0 con IC95% cluster (ciudad-fecha) > 0. Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
+
+### H015 — Comprar al ganador tras el final del partido (fútbol)
+- Fuente: dinámica temporal (cerca de la resolución). Tras el final, el resultado es público
+  pero el mercado sigue abierto hasta la resolución UMA.
+- Racional: si el ganador cotiza < 1 − comisión tras el partido, comprar es casi seguro;
+  pierden vendedores que necesitan liquidez antes de resolver. Riesgo: resolución errónea o
+  disputa, partido aplazado/alargado.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: los 10,083 mercados emparejados de H005 (fútbol), entrenamiento.
+  - t = kickoff + 3 h (partido terminado con margen). Lado = el que el resultado oficial
+    (football-data FTR) hace ganar.
+  - Entrada = peor compra taker real del lado ganador en (t, t+2 h]; solo si precio ≤ 0.995.
+  - PnL = pago − precio − comisión; rendimiento anualizado por (closedTime − t).
+  - Predicción falsable: PnL > 0 con IC95% > 0 y rendimiento anualizado mediano ≥ 20%;
+    se cuentan y reportan todos los casos en que el "ganador" no cobra.
+- Estado: activa | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
