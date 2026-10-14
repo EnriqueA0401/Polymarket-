@@ -8,15 +8,13 @@
 
 ## Hipótesis activa
 - H002 — snapshots con `experiments/run_h002.sh` → data/h002/opps.csv.
-- Segunda: elegir de la cola (H004 deriva cerca de resolución; H007/H009 solo forward).
+- H004 — favoritos casi decididos cerca del cierre. G2 ejecutándose.
 
 ## Siguiente paso exacto
 1. Comprobar que run_h002.sh sigue vivo (`tail data/h002.log`); si no, relanzarlo con
    `nohup experiments/run_h002.sh &`.
-2. Escribir G0 de H004 (deriva cerca de la resolución / mercados "casi decididos"):
-   comprar el lado ≥0.97 en las últimas horas usando precio ejecutable de trades reales;
-   medir rendimiento anualizado frente a riesgo de cola (resoluciones inesperadas, UMA).
-   Fijar umbral, ventana y horizonte ANTES.
+2. H004 (G0 escrito): `python experiments/h004_g2.py` (caché data/trades_h004) →
+   reports/h004_g2.md. En curso desde 2026-10-14 ~02:50 UTC.
 3. ~2026-10-20: evaluar H002 con la predicción G0.
 
 ## Bloqueos / limitaciones
