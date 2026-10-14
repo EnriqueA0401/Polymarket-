@@ -71,7 +71,17 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 ### H026 — Carry en NO a 90 días solo en mercados NO negRisk (forward)
 - Fuente: subgrupo post hoc del red team de H024 (+3.6 c). Holdout ya consumido para esta
   familia → solo validable en paper trading forward (G7) con rentabilidad de cartera.
-- Estado: pendiente (forward) | Variantes: 0
+- Protocolo G7 forward (fijado 2026-10-14, antes de registrar ninguna señal):
+  - Diario: mercados binarios ABIERTOS, NO negRisk, start ≤ end − 120 d, con endDate entre
+    80 y 100 días vista, aceptando órdenes, mid YES (libro) en [0.02, 0.10].
+  - Entrada simulada: comprar 50 acciones de NO barriendo asks del libro vivo (+comisión);
+    una sola entrada por mercado (la primera señal). Se guarda libro y precio.
+  - Seguimiento: resolución real (Gamma). Métrica: rentabilidad de CARTERA
+    Σpnl / Σ(capital·días)·365 sobre mercados resueltos; censura: solo eventos totalmente
+    resueltos.
+  - Éxito: ≥ 50 mercados resueltos con PnL > 0 (IC95% bootstrap por evento > 0) y
+    rentabilidad de cartera > 6%/año. Horizonte: ~3–4 meses (resolución a ~90 d).
+- Estado: activa (forward, registro diario) | Gate: G7 | Variantes: 0
 
 ## Cerradas
 

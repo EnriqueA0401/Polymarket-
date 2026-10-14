@@ -7,18 +7,18 @@
   datos públicos; takers pagan spread, makers sufren selección adversa.
 
 ## Hipótesis activa
-- H002 — snapshots negRisk: `experiments/run_h002.sh` (evaluar ~2026-10-20).
-- H010 — escaleras de fechas: `experiments/run_h010.sh` (evaluar ~2026-10-21).
-- Meta-revisión nº2 (reports/meta_review.md): sin borde explotable con datos públicos y
-  latencia de minutos tras 17 hipótesis cerradas. Quedan forward: H002, H010, H026.
+- H002 — snapshots negRisk (evaluar ~2026-10-20).
+- H010 — escaleras de fechas (evaluar ~2026-10-21).
+- H026 — paper trading carry NO a ~90 d en mercados NO negRisk: registro cada 6 h desde
+  2026-10-14 15:42 (data/h026/signals.csv; 104 señales iniciales en 29 eventos). Resolución
+  ~enero 2027; evaluar con rentabilidad de CARTERA y censura por evento.
+- Meta-revisión nº2: sin borde explotable con datos públicos tras 17 cerradas.
 
 ## Siguiente paso exacto
-1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
-2. H026: escribir G0 de paper trading forward (mercados NO negRisk, duración ≥120 d, YES
-   0.02–0.10 a ~90 d: registrar señales diarias con precio ejecutable del libro; rentabilidad
-   de cartera; criterio G7: ≥ 50 mercados resueltos o 4 semanas — resolución tarda ~90 d,
-   así que es un test de largo plazo).
-3. ~2026-10-20: evaluar H002; ~2026-10-21: H010. Si fallan → informe final negativo.
+1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026 si murieron).
+2. Escribir experiments/h026_eval.py (resolución vía Gamma por condition_id; PnL por acción;
+   cartera Σpnl/Σ(capital·días)·365; IC bootstrap por evento; solo eventos totalmente resueltos).
+3. ~2026-10-20: evaluar H002; ~2026-10-21: H010. Si fallan y H026 no avanza → informe final.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
