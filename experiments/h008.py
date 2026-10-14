@@ -19,16 +19,23 @@ u = pd.read_parquet(os.path.join(DATA, "universe_binary.parquet"),
                     columns=["id", "condition_id", "event_id", "closed_time", "volume", "y", "fee_schedule"])
 fm = u[u.id.isin(ids) & (u.closed_time >= F0) & (u.closed_time < F1) & (u.volume >= 10_000)]
 print("formación mercados", len(fm), flush=True)
+from collections import defaultdict
+agg = defaultdict(lambda: [0.0, 0, set()])   # wallet → [pnl, n, eventos]; streaming (evita OOM)
+ntr = 0
 with ThreadPoolExecutor(6) as ex:
-    res = list(ex.map(lambda c: trades.fetch_market_full(c, os.path.join(DATA, "trades_h008_mkt")), fm.condition_id))
-rows = []
-for (cid, ev, y), r in zip(fm[["condition_id", "event_id", "y"]].itertuples(index=False), res):
-    for x in r or []:
-        rows.append((x["proxyWallet"], ev, h008.trade_pnl(x["side"], x["outcomeIndex"], float(x["price"]), float(x["size"]), y)))
-tr = pd.DataFrame(rows, columns=["proxyWallet", "event_id", "pnl"])
-rank = h008.rank_wallets(tr)
+    it = ex.map(lambda c: trades.fetch_market_full(c, os.path.join(DATA, "trades_h008_mkt")), fm.condition_id)
+    for (ev, y), r in zip(fm[["event_id", "y"]].itertuples(index=False), it):
+        for x in r or []:
+            a_ = agg[x["proxyWallet"]]
+            a_[0] += h008.trade_pnl(x["side"], x["outcomeIndex"], float(x["price"]), float(x["size"]), y)
+            a_[1] += 1; a_[2].add(ev); ntr += 1
+g = pd.DataFrame([(w, v[0], v[1], len(v[2])) for w, v in agg.items()], columns=["proxyWallet", "pnl", "n", "ev"]).set_index("proxyWallet")
+del agg
+g = g[(g.n >= h008.MIN_TRADES) & (g.ev >= h008.MIN_EVENTS)]
+g["score"] = g.pnl / np.sqrt(g.n)
+rank = g.sort_values("score", ascending=False)
 top = rank.head(h008.TOP_K)
-print("trades F", len(tr), "wallets elegibles", len(rank), flush=True)
+print("trades F", ntr, "wallets elegibles", len(rank), flush=True)
 
 # --- Test T: copiar BUYs de las top wallets
 uc = u.set_index("condition_id")
@@ -67,7 +74,7 @@ d["ret"] = d.pnl / (d.px + fee)
 lo, hi = h001.cluster_bootstrap(d, col="pnl") if len(d) else (np.nan, np.nan)
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
 L = ["# H008 G2 — copiar wallets rentables (F: 2025-07→2025-12, T: 2026-01→2026-04-11)", "", f"- commit {commit}",
-     f"- formación: {len(fm):,} mercados, {len(tr):,} trades taker, {len(rank):,} wallets elegibles; top {len(top)}",
+     f"- formación: {len(fm):,} mercados, {ntr:,} trades taker, {len(rank):,} wallets elegibles; top {len(top)}",
      f"- PnL F de la top-50: mediana {top.pnl.median():,.0f} USD, n trades mediana {top.n.median():.0f}",
      f"- T: copias candidatas {len(c):,}; con precio real en ventana: {len(d):,} ({d.event_id.nunique():,} eventos, "
      f"{d.wallet.nunique()} wallets)",
