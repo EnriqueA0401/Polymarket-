@@ -71,22 +71,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Predicción falsable: PnL > 0 con IC95% cluster (ciudad-fecha) > 0. Variantes: 1.
 - Estado: activa | Gate: G0 | Variantes: 0
 
-### H015 — Comprar al ganador tras el final del partido (fútbol)
-- Fuente: dinámica temporal (cerca de la resolución). Tras el final, el resultado es público
-  pero el mercado sigue abierto hasta la resolución UMA.
-- Racional: si el ganador cotiza < 1 − comisión tras el partido, comprar es casi seguro;
-  pierden vendedores que necesitan liquidez antes de resolver. Riesgo: resolución errónea o
-  disputa, partido aplazado/alargado.
-- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
-  - Universo: los 10,083 mercados emparejados de H005 (fútbol), entrenamiento.
-  - t = kickoff + 3 h (partido terminado con margen). Lado = el que el resultado oficial
-    (football-data FTR) hace ganar.
-  - Entrada = peor compra taker real del lado ganador en (t, t+2 h]; solo si precio ≤ 0.995.
-  - PnL = pago − precio − comisión; rendimiento anualizado por (closedTime − t).
-  - Predicción falsable: PnL > 0 con IC95% > 0 y rendimiento anualizado mediano ≥ 20%;
-    se cuentan y reportan todos los casos en que el "ganador" no cobra.
-- Estado: activa | Gate: G0 | Variantes: 0
-
 ### H016 — Mercados cripto de barrera ("reach/dip X") vs modelo de volatilidad realizada
 - Fuente: subagente de investigación (fc26.ifca.ai market-efficiency paper; AAU tesis BTC).
 - Racional: minoristas valoran "tocar X antes de D" como "acabar sobre X" (ignoran el
@@ -131,7 +115,8 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 
 ### H019 — Ventana de propuesta UMA (comprar el lado propuesto antes del settle)
 - Fuente: subagente; generaliza H015. Requiere eventos ProposePrice on-chain (Polygon).
-  Esperar resultado de H015. Estado: pendiente | Variantes: 0
+  Prior rebajado: H015 mostró que tras el evento el precio ya está ≥0.995 casi siempre.
+  Estado: pendiente (baja prioridad) | Variantes: 0
 
 ### H020 — Apertura de mercados nuevos (deriva de la primera hora)
 - Fuente: subagente (IMDEA, liquidez inicial). Estado: pendiente | Variantes: 0
@@ -393,3 +378,20 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Éxito: Σ(PnL + recompensas) > 0 con IC95% bootstrap por mercado > 0 y rendimiento
     mediano ≥ 0.3%/día sobre capital. Si no → rechazar.
 - Estado: DESCARTADA | Gate: etapa 2b (detenida) | Motivo: el usuario la probó en real sin buenos resultados; findings/H013_recompensas_liquidez.md | Variantes: 1
+
+### H015 — Comprar al ganador tras el final del partido (fútbol)
+- Fuente: dinámica temporal (cerca de la resolución). Tras el final, el resultado es público
+  pero el mercado sigue abierto hasta la resolución UMA.
+- Racional: si el ganador cotiza < 1 − comisión tras el partido, comprar es casi seguro;
+  pierden vendedores que necesitan liquidez antes de resolver. Riesgo: resolución errónea o
+  disputa, partido aplazado/alargado.
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos):
+  - Universo: los 10,083 mercados emparejados de H005 (fútbol), entrenamiento.
+  - t = kickoff + 3 h (partido terminado con margen). Lado = el que el resultado oficial
+    (football-data FTR) hace ganar.
+  - Entrada = peor compra taker real del lado ganador en (t, t+2 h]; solo si precio ≤ 0.995.
+  - PnL = pago − precio − comisión; rendimiento anualizado por (closedTime − t).
+  - Predicción falsable: PnL > 0 con IC95% > 0 y rendimiento anualizado mediano ≥ 20%;
+    se cuentan y reportan todos los casos en que el "ganador" no cobra.
+- G2 (reports/h015_g2.md): 6 oportunidades en 6,821 mercados (precio ≤0.995); PnL +5.5 c pero n ínfimo.
+- Estado: RECHAZADA | Gate: falla G4/G6 (frecuencia y capacidad) | Motivo: findings/H015_ganador_tras_partido.md | Variantes: 1
