@@ -29,7 +29,18 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Fuente: dinámica temporal.
 - Racional: mercados casi decididos cotizan con descuento por coste de capital y
   riesgo de resolución; ¿es el descuento mayor que el riesgo real?
-- Estado: pendiente | Gate: — | Variantes: 0
+- Protocolo G0 (fijado 2026-10-14, antes de ver datos de este test):
+  - Universo: muestra h001 ∪ h006r, entrenamiento (closedTime < 2026-04-12), incl. anulados.
+  - t = endDate − h (programado; nunca closedTime). Abierto en t. h ∈ {6h (principal), 1h}.
+  - Lado favorito por prices-history en t: p ≥ 0.95 → YES; p ≤ 0.05 → NO.
+  - Entrada = peor compra taker real del token favorito en (t−1h, t] (Data API); si no hay
+    o si el precio real < 0.95 o ≥ 0.995 → no se opera.
+  - Comisión vigente (rate del mercado o 0.07). PnL por acción = pago − precio − comisión;
+    retorno anualizado por (closedTime − t).
+  - Predicción falsable: PnL medio > 0 con IC95% cluster > 0, y sobrevive a quitar los
+    5 mejores eventos. Se reportan las pérdidas de cola (favorito que pierde) por categoría.
+  - Quién pierde: vendedores impacientes del favorito (liquidez, coste de capital).
+- Estado: activa | Gate: G0 | Variantes: 0
 
 ### H007 — H001 restringida a libros con spread bajo (solo forward)
 - Fuente: derivada de H001. Sin historial de libro → solo verificable en paper trading.
