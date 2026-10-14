@@ -9,16 +9,17 @@
 ## Hipótesis activa
 - H002 — snapshots negRisk: `experiments/run_h002.sh` (evaluar ~2026-10-20).
 - H010 — escaleras de fechas: `experiments/run_h010.sh` (evaluar ~2026-10-21).
-- H013 DESCARTADA por el usuario (probada en real sin buenos resultados). No reabrir.
+- H014 — temperatura vs pronóstico Open-Meteo: G0 escrito; G1/G2 delegados a un subagente
+  (archivos src/pmq/h014.py, experiments/h014_g*.py, reports/h014_g*.md).
+- H015 — ganador tras el partido: G0 escrito; `python experiments/h015_g2.py` en curso.
+- Un subagente investiga hipótesis nuevas (literatura/foros) para la cola.
 
 ## Siguiente paso exacto
-1. Comprobar los 2 bucles (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`); relanzar
-   con `nohup experiments/run_<x>.sh &` si murieron.
-2. Cola vacía salvo forward: proponer y escribir G0 de una hipótesis nueva de familia no
-   explorada (p. ej. mercados de resolución por datos oficiales —economía, clima— frente a
-   pronósticos públicos; o patrones intradía/semanales con precios ejecutables).
-3. Tras 10 hipótesis cerradas (van 9): reports/meta_review.md.
-4. ~2026-10-20: evaluar H002; ~2026-10-21: H010.
+1. Comprobar bucles H002/H010 (`tail -n1 data/h002.log`, `tail -n1 data/h010.log`).
+2. Integrar resultados de H014 (revisar código, tests, informe; commit) y H015.
+3. Añadir a HYPOTHESES.md las mejores ideas del subagente de investigación (G0 antes de datos).
+4. Tras 10 hipótesis cerradas (van 9): reports/meta_review.md.
+5. ~2026-10-20: evaluar H002; ~2026-10-21: H010.
 
 ## Bloqueos / limitaciones
 - prices-history en mercados resueltos: interval=max solo da diario; ventanas ≤14d con
