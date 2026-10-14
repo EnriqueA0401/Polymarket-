@@ -41,32 +41,6 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   arbitraje. Medición forward con libros vivos (como H002) y retro con trades.
 - Estado: pendiente | Gate: — | Variantes: 0
 
-### H011 — Mercados cripto "Up or Down" de corto plazo vs precio spot (Binance)
-- Fuente: fuentes externas / dinámica temporal. Miles de mercados diarios (5 min, 15 min,
-  1 h) sobre BTC/ETH. Con klines gratuitos de Binance se puede estimar la prob. justa
-  (movimiento browniano con vol realizada) en cada instante y compararla con el precio
-  ejecutable de PM. Quién pierde: minoristas que apuestan a dirección con precio lento.
-  Riesgo: latencia (los bots ya arbitran) y comisión cripto 0.07.
-- Protocolo G0 (fijado 2026-10-14, antes de descargar klines o trades):
-  - Series: btc/eth × {5m, 15m, hourly}. Entrenamiento (closedTime < 2026-04-12): muestra
-    aleatoria (semilla 0) de 3,000 mercados por serie (todas si hay menos).
-  - Regla de resolución leída de la descripción de cada mercado: (a) TWAP Chainlink de la
-    ventana ≥ precio inicial; (b) vela (cierre ≥ apertura). Proxy: klines 1m de Binance
-    spot (data-api.binance.vision). G1: concordancia proxy vs resolución por serie/mes;
-    si < 97% en una serie, esa serie se excluye.
-  - Decisión en s = mitad de la ventana. Solo minutos de Binance cerrados antes de s.
-    σ = desv. típ. de retornos log 1m de los 60 min previos.
-    TWAP: E = w·A + (1−w)·S, sd = (1−w)·S·σ·sqrt(τ/3) (τ en min restantes), P = Φ((E−S0)/sd).
-    Vela: P = Φ(ln(S/S0)/(σ·sqrt(τ))).
-  - Ejecución: peor compra taker real del token elegido en (s+30 s, s+90 s]; comisión 0.07
-    (o la del mercado). Señal: P_justa − precio − comisión ≥ 0.03 (YES o NO).
-  - Predicción falsable: PnL medio > 0 con IC95% > 0, clusters = hora de inicio de ventana
-    (BTC y ETH en la misma ventana correlacionan). Variantes: 1.
-  - Aclaración pre-G2: s = t0 + floor(ventana/2) minutos (15m → 7 min).
-- G1 (reports/h011_g1.md): en entrenamiento todas las reglas son "vela". Concordancia
-  hourly 100%, 15m 98.0–98.9%, 5m 96.5–96.9% → 5m EXCLUIDAS (umbral 97%).
-- Estado: activa | Gate: G1 | Variantes: 0
-
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
@@ -220,3 +194,30 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Quién pierde: vendedores impacientes del favorito (liquidez, coste de capital).
 - G2 (reports/h004_g2.md): 6h −0.43 c (IC −0.93…+0.05); 1h −1.08 c (IC −1.66…−0.53).
 - Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H004_favoritos_cerca_cierre.md | Variantes: 2
+
+### H011 — Mercados cripto "Up or Down" de corto plazo vs precio spot (Binance)
+- Fuente: fuentes externas / dinámica temporal. Miles de mercados diarios (5 min, 15 min,
+  1 h) sobre BTC/ETH. Con klines gratuitos de Binance se puede estimar la prob. justa
+  (movimiento browniano con vol realizada) en cada instante y compararla con el precio
+  ejecutable de PM. Quién pierde: minoristas que apuestan a dirección con precio lento.
+  Riesgo: latencia (los bots ya arbitran) y comisión cripto 0.07.
+- Protocolo G0 (fijado 2026-10-14, antes de descargar klines o trades):
+  - Series: btc/eth × {5m, 15m, hourly}. Entrenamiento (closedTime < 2026-04-12): muestra
+    aleatoria (semilla 0) de 3,000 mercados por serie (todas si hay menos).
+  - Regla de resolución leída de la descripción de cada mercado: (a) TWAP Chainlink de la
+    ventana ≥ precio inicial; (b) vela (cierre ≥ apertura). Proxy: klines 1m de Binance
+    spot (data-api.binance.vision). G1: concordancia proxy vs resolución por serie/mes;
+    si < 97% en una serie, esa serie se excluye.
+  - Decisión en s = mitad de la ventana. Solo minutos de Binance cerrados antes de s.
+    σ = desv. típ. de retornos log 1m de los 60 min previos.
+    TWAP: E = w·A + (1−w)·S, sd = (1−w)·S·σ·sqrt(τ/3) (τ en min restantes), P = Φ((E−S0)/sd).
+    Vela: P = Φ(ln(S/S0)/(σ·sqrt(τ))).
+  - Ejecución: peor compra taker real del token elegido en (s+30 s, s+90 s]; comisión 0.07
+    (o la del mercado). Señal: P_justa − precio − comisión ≥ 0.03 (YES o NO).
+  - Predicción falsable: PnL medio > 0 con IC95% > 0, clusters = hora de inicio de ventana
+    (BTC y ETH en la misma ventana correlacionan). Variantes: 1.
+  - Aclaración pre-G2: s = t0 + floor(ventana/2) minutos (15m → 7 min).
+- G1 (reports/h011_g1.md): en entrenamiento todas las reglas son "vela". Concordancia
+  hourly 100%, 15m 98.0–98.9%, 5m 96.5–96.9% → 5m EXCLUIDAS (umbral 97%).
+- G2 (reports/h011_g2.md): 3,046 apuestas, PnL −8.63 c (IC −10.04…−7.14); Brier modelo 0.169 vs PM 0.159.
+- Estado: RECHAZADA | Gate: falla G2 | Motivo: findings/H011_cripto_updown_binance.md | Variantes: 1
