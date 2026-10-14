@@ -163,6 +163,6 @@ el universo de estudio a opciones binarias / contratos de evento:
 - Comparación entre plataformas del mismo evento (Kalshi ↔ Polymarket).
 - Opciones binarias de brokers de pago fijo (p. ej. 80–90%): solo como análisis de valor
   esperado frente a la predictibilidad del subyacente con datos reales (p. ej. Binance).
-G6 añade un requisito: disponibilidad legal para el usuario (jurisdicción) y riesgo de
-contraparte (bróker no regulado = descartado). Prohibido operar dinero real igual que antes.
+Las restricciones geográficas/legales NO se evalúan (decisión del usuario, 2026-10-14): el
+objetivo es encontrar la señal. Prohibido operar dinero real igual que antes.
 Los IDs de hipótesis siguen la misma numeración global en HYPOTHESES.md (prefijo "[BIN]").

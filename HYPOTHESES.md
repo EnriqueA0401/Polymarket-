@@ -177,8 +177,7 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
     (signo contrario), horizonte 5 min, entrada en el cierre del minuto.
   - Predicción: acierto > 55.6% (pago 80%) con IC95% por día > 55.6%. Si no → rechazar y
     documentar que el valor esperado es negativo por construcción.
-  - G6: ilegal para minoristas en la UE desde 2018 (ESMA/CNMV); brokers sin regulación =
-    riesgo de contraparte → aunque pasara, no sería operable legalmente en España.
+  - (Restricciones geográficas no se evalúan por decisión del usuario; foco en la señal.)
 - Estado: activa | Gate: G0 | Variantes: 0
 
 ## Cerradas
