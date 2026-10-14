@@ -10,10 +10,11 @@ from pmq.universe import DATA, parse
 SERIES = {"btc-up-or-down-5m": ("BTCUSDT", "5m"), "btc-up-or-down-15m": ("BTCUSDT", "15m"),
           "btc-up-or-down-hourly": ("BTCUSDT", "hourly"), "eth-up-or-down-5m": ("ETHUSDT", "5m"),
           "eth-up-or-down-15m": ("ETHUSDT", "15m"), "eth-up-or-down-hourly": ("ETHUSDT", "hourly")}
+SCAN = os.path.join(DATA, "h011_scan.parquet")
 rows = []
-for f in sorted(glob.glob(os.path.join(DATA, "gamma", "win_2025-0[5-9]*.jsonl.gz")) +
+for f in ([] if os.path.exists(SCAN) else sorted(glob.glob(os.path.join(DATA, "gamma", "win_2025-0[5-9]*.jsonl.gz")) +
                 glob.glob(os.path.join(DATA, "gamma", "win_2025-1*.jsonl.gz")) +
-                glob.glob(os.path.join(DATA, "gamma", "win_2026-0[1-4]*.jsonl.gz"))):
+                glob.glob(os.path.join(DATA, "gamma", "win_2026-0[1-4]*.jsonl.gz")))):
     for l in gzip.open(f, "rt"):
         if "Up or Down" not in l:
             continue
@@ -28,11 +29,13 @@ for f in sorted(glob.glob(os.path.join(DATA, "gamma", "win_2025-0[5-9]*.jsonl.gz
         r.update(series=ev["seriesSlug"], rule="twap" if "TWAP" in d else "candle",
                  t0=pd.to_datetime(m.get("eventStartTime"), utc=True, errors="coerce"))
         rows.append(r)
-s = pd.DataFrame(rows).drop_duplicates("id")
+if rows:
+    pd.DataFrame(rows).drop_duplicates("id").to_parquet(SCAN)
+s = pd.read_parquet(SCAN)
 s = s[s.closed_time < h001.HOLDOUT_START]
 s["sym"] = s.series.map(lambda x: SERIES[x][0]); s["win"] = s.series.map(lambda x: h011.WINDOW[SERIES[x][1]])
 s["t0"] = s.t0.fillna(s.end - pd.to_timedelta(s.win, unit="m"))
-s = s.groupby("series", group_keys=False).apply(lambda g: g.sample(min(3000, len(g)), random_state=0))
+s = pd.concat([g.sample(min(3000, len(g)), random_state=0) for _, g in s.groupby("series")])
 s.to_parquet(os.path.join(DATA, "h011_sample.parquet"))
 
 def proxy(r, k):
