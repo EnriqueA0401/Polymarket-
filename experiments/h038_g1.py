@@ -62,8 +62,9 @@ def main():
           f"{int(meta.n_train.sum())}; descartados sin guardar por liquidar ≥ 2026-04-12 (holdout): "
           f"{int(meta.n_holdout_dropped.sum())}.",
           f"- Rango de liquidación en entrenamiento: {uni.settle.min():%Y-%m-%d} → {uni.settle.max():%Y-%m-%d}. "
-          "Las series legado (INX, FED, HIGHNY…) devuelven 0 mercados en la API histórica: el historial "
-          "público empieza con las series KX*. Limitación documentada (no hay otra fuente pública).",
+          "Los mercados legado (p. ej. HIGHMIA-23JUL01) aparecen bajo la serie KX* actual; las series "
+          "legado sin prefijo (INX, FED, HIGHNY) devuelven 0 mercados por series_ticker. Se asume que la "
+          "API histórica es el universo público completo (limitación: no hay forma de verificarlo).",
           f"- Resultados: {uni.result.fillna('∅').value_counts().to_dict()}", ""]
 
     L += ["## Elegibilidad en t = cierre programado − 24 h", "",

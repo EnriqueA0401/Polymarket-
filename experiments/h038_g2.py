@@ -42,6 +42,9 @@ def main():
     obs = pd.read_parquet(os.path.join(h038.CACHE, "obs_train.parquet"))
     assert (pd.to_datetime(obs.settlement_ts.fillna(obs.close_time), utc=True, format="mixed")
             < h038.HOLDOUT_START).all()
+    sc = obs[(obs.result == "scalar") & obs.side.notna() & obs.exec_price.notna()].ticker.tolist()
+    vals = h038.scalar_values(sc) if sc else {}
+    obs["scalar_value"] = obs.ticker.map(vals).astype(float)
     base = h038.add_pnl(obs)
     x2 = h038.add_pnl(obs, fee_mult=2.0, slip2=True)
     c10 = h038.add_pnl(obs, c=10)
@@ -92,7 +95,8 @@ def main():
           "garantizado al precio peor observado).",
           f"- Mercados por evento: media {per_ev.mean():.2f}, máx {per_ev.max()} (correlación intra-evento "
           "tratada con el bootstrap por clusters).",
-          f"- Resultados: {base.result.value_counts().to_dict()}; mercados con multiplicador ≠ 1: "
+          f"- Resultados: {base.result.value_counts().to_dict()} (escalares liquidados a "
+          f"settlement_value_dollars; sin valor → pago 0); mercados con multiplicador ≠ 1: "
           f"{(base.fee_mult.fillna(1) != 1).sum()}.", ""]
 
     b = rows[0]; c2 = rows[1]

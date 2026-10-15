@@ -39,6 +39,9 @@ def test_pnl_a_mano():
     assert h038.pnl_per_contract("no", 0.93, "no") == pytest.approx(1 - 0.93 - 0.0046)
     # anulado: solo se pierde la comisión
     assert h038.pnl_per_contract("no", 0.93, "void") == pytest.approx(-0.0046)
+    # escalar a 0.30: YES cobra 0.30, NO cobra 0.70; sin valor → lo peor (0)
+    assert h038.pnl_per_contract("no", 0.93, "scalar", scalar_value=0.3) == pytest.approx(0.70 - 0.93 - 0.0046)
+    assert h038.pnl_per_contract("yes", 0.95, "scalar") == pytest.approx(-0.9534)
     # costes ×2: comisión doble y +0.01 de precio: 1 − 0.96 − 2·ceil(0.07·100·.96·.04=0.2688)/100
     assert h038.pnl_per_contract("yes", 0.95, "yes", fee_mult=2, extra_slip=0.01) == pytest.approx(
         1 - 0.96 - 2 * 0.27 / 100)

@@ -46,11 +46,18 @@ def kalshi_fee(c, p, mult=1.0, rate=FEE_RATE):
     return math.ceil(round(x, 6)) / 100.0
 
 
-def pnl_per_contract(side, price, result, c=ORDER_C, mult=1.0, fee_mult=1.0, extra_slip=0.0):
+def pnl_per_contract(side, price, result, c=ORDER_C, mult=1.0, fee_mult=1.0, extra_slip=0.0,
+                     scalar_value=None):
     """PnL por contrato (USD) de comprar `side` a `price` y mantener hasta liquidación.
-    fee_mult escala la comisión (costes ×2); extra_slip empeora el precio pagado."""
+    fee_mult escala la comisión (costes ×2); extra_slip empeora el precio pagado.
+    result 'scalar': YES cobra scalar_value y NO cobra 1 − scalar_value (si falta el valor, se asume
+    lo peor: el lado comprado cobra 0)."""
     q = min(price + extra_slip, 1.0)
     fee = fee_mult * kalshi_fee(c, q, mult) / c
+    if result == "scalar":
+        v = scalar_value
+        payout = 0.0 if v is None or v != v else (float(v) if side == "yes" else 1.0 - float(v))
+        return payout - q - fee
     if result not in ("yes", "no"):          # anulado: se devuelve el coste, se pierde la comisión
         return -fee
     payout = 1.0 if side == result else 0.0
@@ -202,6 +209,22 @@ def market_trades(ticker, t):
     return res
 
 
+def scalar_values(tickers):
+    """settlement_value_dollars de mercados liquidados como 'scalar' (caché)."""
+    path = os.path.join(CACHE, "scalar_values.json")
+    cache = json.load(open(path)) if os.path.exists(path) else {}
+    todo = [t for t in tickers if t not in cache]
+    for i in range(0, len(todo), 50):
+        r = k_get("/historical/markets", {"tickers": ",".join(todo[i:i + 50]), "limit": 1000}) or {}
+        for m in r.get("markets", []):
+            v = m.get("settlement_value_dollars")
+            cache[m["ticker"]] = float(v) if v not in (None, "") else None
+        for t in todo[i:i + 50]:
+            cache.setdefault(t, None)
+    json.dump(cache, open(path, "w"))
+    return {t: cache.get(t) for t in tickers}
+
+
 def trades_cache_path(ticker, t):
     return os.path.join(CACHE, "tr", f"{ticker}_{int(t)}.json.gz")
 
@@ -230,8 +253,9 @@ def add_pnl(obs, c=ORDER_C, fee_mult=1.0, slip2=False, mult_floor=None):
     if mult_floor is not None:
         mult = mult.clip(lower=mult_floor)
     extra = (tr.exec_price - tr.ref_price).clip(lower=0.01) if slip2 else pd.Series(0.0, index=tr.index)
-    tr["pnl"] = [pnl_per_contract(s, p, r, c=c, mult=mm, fee_mult=fee_mult, extra_slip=e)
-                 for s, p, r, mm, e in zip(tr.side, tr.exec_price, tr.result, mult, extra)]
+    sv = tr.scalar_value if "scalar_value" in tr else pd.Series(np.nan, index=tr.index)
+    tr["pnl"] = [pnl_per_contract(s, p, r, c=c, mult=mm, fee_mult=fee_mult, extra_slip=e, scalar_value=v)
+                 for s, p, r, mm, e, v in zip(tr.side, tr.exec_price, tr.result, mult, extra, sv)]
     q = (tr.exec_price + extra).clip(upper=1.0)
     tr["capital"] = q + [fee_mult * kalshi_fee(c, x, mm) / c for x, mm in zip(q, mult)]
     st = pd.to_datetime(tr.settlement_ts.fillna(tr.close_time), utc=True, format="mixed")
