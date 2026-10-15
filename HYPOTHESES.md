@@ -158,6 +158,23 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
 - Estado: activa (forward con libros reales, `experiments/run_h039.sh` cada 30 min desde
   2026-10-15 02:40, 7 días) | Gate: G2 parcial | Variantes: 1
 
+### H042 [BIN] — Coherencia interna de Kalshi (cubos excluyentes y escaleras de strikes)
+- Fuente: ampliación binarias; análogo de H002/H037 en Kalshi (otra base de operadores).
+- Racional: en eventos de Kalshi con cubos mutuamente excluyentes (temperatura, rango de precio,
+  "cuántos…") Σ asks YES < 1, o Σ asks NO < n−1, garantiza beneficio; en escaleras "above K"
+  P(>K1) ≥ P(>K2) si K1 < K2. Pierde el MM lento que deja una pata desajustada. Kalshi cobra
+  ceil(0.07·C·P·(1−P)) por orden, lo que penaliza cestas de muchas patas baratas.
+- Protocolo G0 (fijado 2026-10-15, antes de ver datos):
+  - Forward: snapshots de libros (API pública, orderbook) de todos los eventos abiertos de
+    Kalshi con ≥ 2 mercados cada 60 min durante 7 días; barrido de profundidad para 10 contratos
+    por pata, comisión taker ceil por pata (C=10), sin asumir fills maker.
+  - Exclusividad: solo eventos con mutually_exclusive=true y cubos que cubran todo el rango
+    (verificado por texto de reglas); si no se puede verificar cobertura, solo cuenta Σ NO.
+  - Oportunidad: beneficio neto ≥ 0.5% del capital y anualizado ≥ 20% al cierre del evento.
+  - Predicción: ≥ 150 eventos independientes con oportunidad en 7 días, beneficio medio ≥ 1 c
+    por cesta-contrato. Variantes: 1.
+- Estado: activa | Gate: G0 | Variantes: 0
+
 ## Cerradas
 
 ### H001 — Sesgo favorito-longshot
