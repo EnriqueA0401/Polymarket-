@@ -150,7 +150,13 @@ Formato: id | fuente | racional | estado | gate alcanzado | motivo | nº variant
   - Forward: snapshots de libros de ambas plataformas cada 30 min durante 7 días.
   - Predicción: ≥ 150 partidos con oportunidad y beneficio medio ≥ 1 c por par tras comisiones,
     reglas de resolución verificadas idénticas. Variantes: 1.
-- Estado: activa | Gate: G0 | Variantes: 0
+- Resultado G2 (2026-10-15, reports/h039_g2.md): 422 partidos con oportunidad, 1ª oportunidad
+  +5.75 c (+5.27 c sin top-5); ×2 costes: 191 partidos. PERO reglas NO idénticas (aplazado > 48 h
+  o cancelado: Kalshi paga 'precio justo', PM espera/50-50; casos reales pagaron 0.56–0.62) y 3
+  partidos resueltos distinto. Tamaño mediano 15 contratos; capacidad ~1,315 USD/año sin top-5;
+  44% con firma de bot que ya las toma. Predicción cumplida en beneficio, fallida en reglas.
+- Estado: activa (forward con libros reales, `experiments/run_h039.sh` cada 30 min desde
+  2026-10-15 02:40, 7 días) | Gate: G2 parcial | Variantes: 1
 
 ## Cerradas
 

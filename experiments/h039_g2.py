@@ -108,6 +108,23 @@ bins = [-1, 0.95, 0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.05, 10]
 hist = pd.cut(P.cost, bins).value_counts().sort_index()
 hb = pd.cut(O.h_before, [0, 0.25, 1, 3, 6, 24, 72, 400]).value_counts().sort_index()
 rate_hist = g.rate.value_counts().to_dict()
+O["month"] = pd.to_datetime(O.minute * 60, unit="s", utc=True).dt.strftime("%Y-%m")
+P["month"] = pd.to_datetime(P.minute * 60, unit="s", utc=True).dt.strftime("%Y-%m")
+O["bot"] = (O.dt <= 10) & ((O.k_size - O.pm_size).abs() <= 0.05 * np.maximum(O.k_size, O.pm_size))
+mon = P.groupby("month").agg(partidos_con_par=("id", "nunique"))
+mon["partidos_opp"] = O.groupby("month").id.nunique()
+mon["pares_opp"] = O.groupby("month").size()
+mon["firma_bot"] = O.groupby("month").bot.mean()
+mon["benef_x_tamaño_USD"] = (O.profit * O.minsz_w).groupby(O.month).sum()
+mon = mon.fillna(0)
+# capacidad: si hubiéramos tomado TODO el tamaño al peor precio de cada oportunidad (cota superior; en realidad lo
+# tomó otro operador)
+cap_total = float((O.profit * O.minsz_w).sum())
+cap_first = float((first.profit * np.minimum(first.k_size_w, first.pm_size_w)).sum())
+top5 = first.sort_values("profit").tail(5).id.tolist()
+mean_first_ex5 = first[~first.id.isin(top5)].profit.mean()
+_v = O.profit.astype(float) * O.minsz_w.astype(float)
+cap_ex5 = float(_v[~O.id.isin(_v.groupby(O.id).sum().nlargest(5).index)].sum())
 
 # ---------------------------------------------------------------------------------------------
 # Auditoría de reglas
@@ -157,9 +174,13 @@ for e in kev.values():
     hit = []
     for c in cand.itertuples():
         nm = H.pm_full_names(c.description, [c.o0, c.o1], c.league)
-        if nm and set(nm) == set(teams) and pd.notna(c.game_start) and \
-                -3 <= (c.game_start.tz_convert("America/New_York").date() - e["date"]).days <= 150:
-            hit.append((c.id, nm[0], c.y, c.clean, c.closed_time, c.game_start))
+        if not (nm and set(nm) == set(teams) and pd.notna(c.game_start)):
+            continue
+        sd = re.search(r"scheduled for ([A-Z][a-z]+ \d{1,2})", c.description or "")   # fecha original en el texto PM
+        same_orig = bool(sd) and sd.group(1) == f"{e['date']:%B} {e['date'].day}"
+        near = abs((c.game_start.tz_convert("America/New_York").date() - e["date"]).days) <= 3
+        if same_orig or near:
+            hit.append((c.id, nm[0], c.y, bool(c.clean), str(c.closed_time)[:16], str(c.game_start)[:16]))
     sv = {t: v["settle"] for t, v in e["mk"].items()}
     kz.append({"k_event": e["event_ticker"], "resultados_K": res, "liquidación_K": sv,
                "PM (id, team0, y, clean, closed, start)": hit[:2] if hit else "sin mercado PM en entrenamiento"})
@@ -216,6 +237,14 @@ L = ["# H039 G2 — arbitraje Kalshi ↔ Polymarket (histórico, entrenamiento)"
      f"≥ 1000: {(O.minsz >= 1000).mean():.3f}" if len(O) else "- sin oportunidades",
      f"- |Δt| entre las dos peores compras (s), cuantiles: {q(O.dt)}; fracción ≤ 5 s: {(O.dt <= 5).mean():.3f}" if len(O) else "",
      f"- dirección Kalshi e=0/e=1: {O.e.value_counts().to_dict()}",
+     f"- **firma de arbitrajista existente** (|Δt| ≤ 10 s y mismo tamaño ±5 % en ambas plataformas): "
+     f"{O.bot.mean():.3f} de los pares-minuto con oportunidad → las oportunidades históricas fueron tomadas por otro "
+     "operador que compró las dos patas a la vez; para capturarlas habría que ganarle la carrera",
+     f"- capacidad (cota superior): Σ beneficio × tamaño al peor precio = {cap_total:,.0f} USD en todo el periodo "
+     f"({cap_first:,.0f} USD sólo con la primera oportunidad por partido; {cap_ex5:,.0f} USD sin los 5 partidos de mayor "
+     f"capacidad, p. ej. un Royals–Guardians con Kalshi a 0.01); media de la 1ª oportunidad sin los 5 mejores "
+     f"partidos: {mean_first_ex5:.4f}",
+     "", "### Evolución mensual", "", mon.to_markdown(floatfmt=".3f"), "",
      "", "### Horas antes del inicio (oportunidades)", "", hb.rename("pares").to_frame().to_markdown(), "",
      "## Auditoría de reglas de resolución", "",
      "Fracción de partidos usados cuyo texto contiene cada cláusula (PM: descripción de Gamma; Kalshi: rules_secondary "

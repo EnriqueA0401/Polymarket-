@@ -8,8 +8,10 @@
 
 ## Hipótesis activa
 - ALCANCE AMPLIADO (usuario, 14/10): opciones binarias (ver CLAUDE.md). En curso: H038 [BIN]
-  calibración Kalshi (subagente), H039 [BIN] arbitraje Kalshi↔PM (subagente), H040 [BIN]
-  RECHAZADA (acierto máx. 51.1% < 55.6%).
+  calibración Kalshi (subagente), H040 [BIN] RECHAZADA (acierto máx. 51.1% < 55.6%).
+- H039 [BIN] arbitraje Kalshi↔PM: G2 histórico +5.75 c en 422 partidos pero reglas distintas
+  (aplazado/cancelado) y bots ya presentes. Forward con libros reales desde 15/10 02:40
+  (data/h039/live.csv); evaluar ~2026-10-22.
 - H002 — snapshots negRisk (evaluar ~2026-10-20).
 - H010 — escaleras de fechas (evaluar ~2026-10-21).
 - H026 — paper trading carry NO a ~90 d en mercados NO negRisk: registro cada 6 h desde
@@ -27,7 +29,7 @@
   121 pares, máximo +0.29% (anualizado 0.14%) → coherente; evaluar ~2026-11-11. H029–H032 en cola solo forward (n < 150 en entrenamiento).
 
 ## Siguiente paso exacto
-1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026/H033 si murieron;
+1. SIEMPRE al empezar: `experiments/ensure_loops.sh` (relanza H002/H010/H026/H033/H037/H039 si murieron;
    también lo ejecuta el hook SessionStart de .claude/settings.json).
    Parcial 14/10 20:45: H002 21 snapshots, 5 eventos A seguros ≥0.5% pero 0 con anualizado ≥20%;
    H010 7 snapshots, 0 pares ≥0.5%.
@@ -43,4 +45,4 @@
 - Mercados sin endDate no se capturan por ventanas de endDate (cuantificar).
 
 ## Contador global de pruebas
-- 35 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1; H032: 1; H034: 1; H035: 1; H040: 2; H041: 1). Cerradas: 25 (+H022 descartada sin prueba).
+- 36 (H001: 3; H002: 0; H003: 3; H004: 2; H005: 1; H006: 3; H008: 1; H011: 1; H012: 2; H013: 1; H015: 1; H016: 1; H017: 1; H018: 1; H020: 2; H024: 1; H025: 1; H014: 1; H027: 1; H028: 1; H023: 1; H032: 1; H034: 1; H035: 1; H040: 2; H041: 1; H039: 1). Cerradas: 25 (+H022 descartada sin prueba).
