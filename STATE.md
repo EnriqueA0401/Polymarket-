@@ -1,5 +1,10 @@
 # STATE
 
+**INVESTIGACIÓN DETENIDA por el usuario (2026-10-15 03:00 UTC).** Subagentes H038/H042 parados
+(H038 y H042 con código a medias, sin resultados), bucles forward detenidos, tarea programada
+desactivada y hook SessionStart retirado. Para reanudar: reactivar todo y ejecutar
+`experiments/ensure_loops.sh`.
+
 ## Qué se está haciendo
 - Cerradas: H001, H003, H004, H005, H006, H008, H011, H012, H015 (rechazadas), H013 (descartada por el usuario). H002 activa (forward
   negRisk hasta ~2026-10-20).
